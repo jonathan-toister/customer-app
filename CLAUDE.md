@@ -40,7 +40,7 @@ npm run test          # client tests, run once (not watch mode); add server test
 
 ## Keeping docs in sync
 
-Docs are part of the change, not a Phase 7 chore. Whenever a change touches something below, update the listed
+Docs are part of the change, not a Phase 8 chore. Whenever a change touches something below, update the listed
 docs **in the same change**:
 
 | If you change… | Update |
@@ -91,7 +91,7 @@ Node 24 (see `.nvmrc`). Run `nvm use` before any npm command; Angular 22 doesn't
 ## Things NOT to add (deliberate — see DECISIONS.md)
 
 NgRx or any state library, HTTP interceptors, a global error service, a shared types package,
-pagination, auth, i18n, SSR. Don't add new dependencies without noting them in `DECISIONS.md`.
+auth, i18n, SSR. Don't add new dependencies without noting them in `DECISIONS.md`.
 
 ## Code style
 

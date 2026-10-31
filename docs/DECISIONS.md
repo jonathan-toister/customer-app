@@ -1,7 +1,7 @@
 # Decisions
 
 Short log of architecture/technical choices. One or two lines each: the choice, and why.
-Phase 7 condenses this into the README.
+Phase 8 condenses this into the README.
 
 ## Architecture
 
@@ -41,7 +41,7 @@ Phase 7 condenses this into the README.
 - **Malformed JSON body → `400 BAD_REQUEST`, not `500 INTERNAL`.** The phase file's error handler would have reported a client mistake as a server error. Added to `API.md`.
 - **`PUT` checks 404 before validating the body**, so the most basic problem (wrong id) is reported first.
 - **TypeScript 7 (native compiler) on the server**, because that's what `npm install typescript` now installs. `tsx` runs the code, and `tsc --noEmit` (`npm --prefix server run typecheck`) only type-checks.
-- **One README, at the root, written early and kept current**, rather than waiting until the end (Phase 7) or keeping per-package READMEs. The CLI-generated `client/README.md` was deleted because its instructions (`ng serve`, `ng e2e`) were wrong for this repo. CLAUDE.md's "Keeping docs in sync" table maps each kind of change to the docs it affects.
+- **One README, at the root, written early and kept current**, rather than waiting until the end (Phase 8) or keeping per-package READMEs. The CLI-generated `client/README.md` was deleted because its instructions (`ng serve`, `ng e2e`) were wrong for this repo. CLAUDE.md's "Keeping docs in sync" table maps each kind of change to the docs it affects.
 - **Root `npm run test` passes `--watch=false`.** `ng test` (Vitest) stays in watch mode in a terminal, so the command would never finish.
 - **Node version pinned:** `.nvmrc` (`24`, current Active LTS) and `"engines": { "node": ">=22" }` in the root `package.json`. Node 20 is end-of-life and current Angular needs a newer runtime; this tells a reviewer which Node to use before they hit a confusing install error.
 - **Mobile = under 600px wide (`Breakpoints.XSmall`)**, instead of `Breakpoints.Handset`, which also depends on orientation. Width alone is predictable and easy to test in DevTools. *Developer's choice when asked.*
@@ -52,7 +52,7 @@ Phase 7 condenses this into the README.
 - **Status is a text badge**, a styled `<span>` with the status word, so colour isn't the only signal. Not `mat-chip`, which is meant for interactive chips. The badge styles are repeated in the table and cards SCSS (a few lines) so each view stands on its own.
 - **Edit only through the edit icon button**, not by clicking the row. A row click could only open the same dialog, so it added a second way in (and a double-click guard) with no new ability. The button works with the keyboard and has an `aria-label` per customer.
 - **`MAT_ICON_DEFAULT_OPTIONS` sets the icon font to Material Symbols.** `ng add` put the Material Symbols font in `index.html`, but `<mat-icon>` defaults to the older `material-icons` class, so icons would show as text.
-- **Component files:** separate `.html` / `.scss` per component (like `App`), and no generated `.spec.ts` stubs. Tests are written in Phase 6. *Developer's choice when asked.*
+- **Component files:** separate `.html` / `.scss` per component (like `App`), and no generated `.spec.ts` stubs. Tests are written in Phase 7. *Developer's choice when asked.*
 - **Reactive Forms, not Signal Forms.** Signal Forms (`form()` from `@angular/forms/signals`) became stable API in Angular 22. Reactive Forms were kept because the server-error steps in `ERROR-HANDLING.md` are written for them (`setErrors`, `enable()` before `setErrors`), they work well with `mat-form-field` / `mat-error`, and they're widely known. Signal Forms would fit the signals-everywhere style and are a reasonable next step. *Developer's choice when asked.*
 - **The form dialog reads `getRawValue()` before `form.disable()`.** Disabled controls are left out of `form.value`, so reading after disabling would send an empty object.
 - **One request per save is guaranteed by a `saving()` check at the top of `submit()`**, not only by `[disabled]` on the button. Enter in a field submits the form too, and the guard covers every path.
@@ -71,7 +71,8 @@ Phase 7 condenses this into the README.
 
 ## Deliberately not added
 
-NgRx, HTTP interceptors, global error handler service, shared types package, pagination, auth, URL-synced filters (stretch).
+NgRx, HTTP interceptors, global error handler service, shared types package, auth, URL-synced filters (stretch).
+Pagination was on this list until Phase 6, when the developer chose to add it (see the AI log).
 
 ## New dependencies
 
@@ -88,3 +89,4 @@ NgRx, HTTP interceptors, global error handler service, shared types package, pag
 
 - **Phase 3, clickable table rows.** Suggested: skip them and keep only the edit icon button (less code to explain). → The developer first chose clickable rows, intending to let users edit in the table without a popup. Once built, a row click only opened the same popup as the button, and real inline editing would mean a second edit path with its own error handling (the popup is still needed for Add and the mobile cards). → Removed again; only the edit button opens the dialog.
 - **Phase 5, no spinner at startup.** The app initializer waits for the first list, so the page (and its spinner) isn't drawn until then. Suggested: stop waiting, so the page draws at once and shows its own `LoadingState`. → The developer kept the wait and asked for an animated placeholder in `index.html` instead (a CSS spinner + "Loading customers…" inside `<app-root>`). → Customers are still on screen at first render, as decided in Phase 2, and there's no blank page while they load.
+- **Phase 6, why search and sort call the API again.** The developer asked why the app calls the API for search and sort when the first call already returns every customer. Suggested: keep search and sort on the server (the assignment's "don't overload the API" expects the API to be involved, and it still works once the data grows), add the "skip searches that can't match" shortcut, and write up the client-side alternative as a trade-off. → The developer chose to **add pagination**. → With pagination the client only holds one page, so filtering or sorting in the browser would be wrong, not just a trade-off. That makes the API calls necessary.

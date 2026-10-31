@@ -4,9 +4,10 @@ A small app for managing customers: list, search, sort, add, edit, and reset the
 The client is **Angular 22 with Angular Material**. It talks to a small **Express 5 + TypeScript** API that keeps
 customers in memory. Built as a home assignment for an Angular Front-End Developer role.
 
-**Status:** Phases 0–5 of 7 are done: the API, the client's data layer, the customers page (search, sort,
+**Status:** Phases 0–5 of 8 are done: the API, the client's data layer, the customers page (search, sort,
 table and card views), adding, editing and resetting customers, and the loading, error, empty and no-results
-states with a responsive and accessibility pass. Tests come in Phase 6.
+states with a responsive and accessibility pass. Phase 6 (design tokens, own dialog and notification,
+pagination, skipping searches that can't match) is in progress; tests come in Phase 7.
 Progress is tracked in [docs/PLAN.md](docs/PLAN.md).
 
 ## Prerequisites

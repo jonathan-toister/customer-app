@@ -79,7 +79,7 @@ in a demo, that server field errors arrive under the right field.
 
 | Case(s) | Built in | Verified by |
 |---|---|---|
-| `toApiError`, store contract | Phase 2 | Phase 2 acceptance (server stopped → `UNKNOWN`), Phase 6 store + `toApiError` tests |
-| 1–8 | Phase 4 | Phase 4 acceptance criteria, Phase 6 dialog tests |
+| `toApiError`, store contract | Phase 2 | Phase 2 acceptance (server stopped → `UNKNOWN`), Phase 7 store + `toApiError` tests |
+| 1–8 | Phase 4 | Phase 4 acceptance criteria, Phase 7 dialog tests |
 | 9–10 | Phase 5 | Phase 5 acceptance criteria |
 | 11 | Phase 4 | Phase 4 acceptance criteria |
