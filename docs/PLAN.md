@@ -9,7 +9,7 @@ backend. Prioritise working behaviour over polish. Stretch items are marked and 
 |---|-------|------|------|------|
 | 0 | Repo setup | `phases/00-setup.md` | 10 min | [x] |
 | 1 | Backend API (incl. reset) | `phases/01-backend.md` | 30–40 min | [x] |
-| 2 | Client scaffold + data layer | `phases/02-client-data-layer.md` | 45 min | [ ] |
+| 2 | Client scaffold + data layer | `phases/02-client-data-layer.md` | 45 min | [x] |
 | 3 | Customers page, toolbar, views | `phases/03-page-and-views.md` | 60 min | [ ] |
 | 4 | Add / edit dialog + reset | `phases/04-dialog-and-reset.md` | 45 min | [ ] |
 | 5 | States, responsive, a11y pass | `phases/05-states-responsive.md` | 30 min | [ ] |

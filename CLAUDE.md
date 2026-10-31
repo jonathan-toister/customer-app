@@ -43,13 +43,19 @@ CLAUDE.md, README.md, package.json
 docs/       PLAN.md, API.md, ERROR-HANDLING.md, DECISIONS.md, phases/
 server/src/ index.ts, customers.routes.ts, customers.store.ts, validation.ts, errors.ts, seed.ts
 client/src/app/
-  app.config.ts, app.routes.ts, app.component.ts
+  app.config.ts, app.routes.ts, app.ts (+ app.html, app.scss)
   features/customers/
     data/          customer.model.ts, customer-api.service.ts, customer.store.ts
     customers-page/
     components/    customer-toolbar/, customer-table/, customer-cards/, customer-form-dialog/
   shared/ui/       loading-state/, error-state/, empty-state/, confirm-dialog/
 ```
+
+File naming: components use the Angular 2025 style (`customers-page/customers-page.ts`, class `CustomersPage`, no
+`.component` suffix). Data-layer files keep descriptive suffixes (`customer-api.service.ts`, `customer.store.ts`,
+`customer.model.ts`), so each file name says what kind of thing is inside.
+
+Node 24 (see `.nvmrc`). Run `nvm use` before any npm command; Angular 22 doesn't run on Node 20.
 
 ## Angular conventions
 

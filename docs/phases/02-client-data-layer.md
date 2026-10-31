@@ -9,9 +9,10 @@ No real UI yet — a temporary `<pre>` dump of the store state is enough to veri
    (test runner, zoneless/zone setting) — don't fight them; note which ones were used in `DECISIONS.md`.
 2. `ng add @angular/material` (pick a prebuilt theme, enable typography, animations as the schematic offers).
 3. `proxy.conf.json` mapping `/api` → `http://localhost:3000`; wire it in `angular.json` serve options.
-   `environment.ts` → `apiUrl: '/api'`.
-4. `app.config.ts`: `provideRouter(routes)`, `provideHttpClient(withFetch())`, and
-   `provideAppInitializer(() => inject(CustomerStore).load())`.
+   ~~`environment.ts` → `apiUrl: '/api'`~~ *As built:* a `CUSTOMERS_URL = '/api/customers'` constant in the API service.
+   Thanks to the proxy, the URL is the same in every environment (see DECISIONS.md).
+4. `app.config.ts`: `provideRouter(routes)`, `provideHttpClient()` (*as built:* without `withFetch()`, which is
+   deprecated in Angular 22 because fetch is the default), and `provideAppInitializer(() => inject(CustomerStore).load())`.
 5. `app.routes.ts`: `''` → redirect to `customers`; `customers` → `loadComponent` of `CustomersPage`;
    `**` → redirect to `customers`. (Create an empty `CustomersPage` placeholder for now.)
 6. `features/customers/data/customer.model.ts` — types from `API.md` plus:
@@ -27,18 +28,24 @@ No real UI yet — a temporary `<pre>` dump of the store state is enough to veri
      `customers`, `loading`, `error: ApiError | null`, `query` (raw text, updates on every keystroke),
      `sort` (default `createdAt desc`).
    - **Derived:** `isEmpty`, `hasQuery`, `initialLoad` (loading and no customers yet).
-   - **Pipeline** (set up once, in the constructor, with `takeUntilDestroyed`):
+   - **Pipeline** (set up once, in the constructor, with `takeUntilDestroyed`). *As built*, which changed from the
+     first sketch (see DECISIONS.md):
      ```
-     searchTerm$ = query$ → map(trim) → debounceTime(300) → distinctUntilChanged()
-     params$     = combineLatest([searchTerm$ (startWith current), sort$ (distinct by field+order)])
-     merge(params$, reload$ → latest params)
+     keystrokes$ → map(trim) → debounceTime(300) → filter(term !== lastRequest.q) → fetch()
+     fetch()     = lastRequest = { q: query().trim(), sort: sort() }; requests$.next(lastRequest)
+                   (also called directly by setSort, clearQuery, reload, reset, load: no debounce for clicks)
+     requests$
        → tap(loading = true, error = null)
        → switchMap(params => api.list(params).pipe(
-             catchError(err => { error = err; return EMPTY })     // inside switchMap: the stream survives
+             tap(set customers, loading = false),
+             catchError(err => { error = err; loading = false; return EMPTY })   // inside switchMap: the stream survives
          ))
-       → set customers, loading = false
      ```
-     Make sure `loading` is set back to `false` on error too (`finalize` inside the switchMap is fine).
+     *First sketch:* `distinctUntilChanged` on the search term, and `combineLatest` of term and sort. It was replaced
+     because `distinctUntilChanged` only remembers the last *typed* term. After clear/reset, typing the same term again
+     would be skipped, and reset caused a duplicate request. Comparing with the last *request* fixes both.
+     `loading` is set back to `false` in `tap`/`catchError`, **not** in `finalize`: `finalize` also runs when
+     `switchMap` cancels a request, which would turn `loading` off while the newer request is still running.
      Comment each operator with **why** it's there — this code will be explained in the interview.
    - **Actions:** `setQuery(text)`, `setSort(sort)`, `reload()`, `clearQuery()`,
      `load(): Promise<void>` — triggers the first fetch and resolves when it settles (success *or* error). **Never rejects.**

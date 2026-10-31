@@ -26,6 +26,14 @@ Phase 7 condenses this into the README.
   - **404 when saving an edit** (the customer was removed, e.g. by a reset in another tab) closes the dialog, shows "This customer no longer exists" and reloads. Keeping the dialog open would be a dead end.
   - **A save resolves once the save succeeds**, even if the list refresh after it fails. The refresh failure appears as the list's error banner, not as a dialog error. The data *was* saved.
   - **Client validation deliberately isn't a perfect copy of the server's** (a whitespace-only name, `a@b`). The server is the source of truth, and those cases show its field errors reaching the right control.
+- **Angular CLI defaults kept (Angular 22.2):** Vitest test runner, **zoneless** change detection (no zone.js), strict TypeScript (6.0 in the client), Material 3 theme (azure/blue, Roboto). Angular 22 makes `OnPush` the default, but components still set it explicitly (CLAUDE.md), so the intent is visible.
+- **File naming:** 2025 style for components (`app.ts`, `customers-page.ts`), descriptive suffixes kept for data files (`customer-api.service.ts`, `customer.store.ts`, `customer.model.ts`). *Developer's choice when asked.*
+- **No `environment.ts`.** The API URL is a constant (`/api/customers`) in the API service. With the dev proxy (and same-origin hosting in production), it's the same everywhere, so environment files would add config for nothing.
+- **`provideHttpClient()` without `withFetch()`:** deprecated in Angular 22, where fetch is the default backend.
+- **Search pipeline compares with the last *request*, not the last typed term.** The first sketch used `distinctUntilChanged` + `combineLatest`. But `distinctUntilChanged` only remembers typed values, while clear, reset and sort changes also issue requests. After a clear, retyping the same term would be skipped, and reset sent a duplicate request. Every request now goes through one `fetch()` that records `lastRequest`, and the typing stream does `filter(term !== lastRequest.q)`.
+- **`loading = false` in `tap`/`catchError`, not `finalize`.** `finalize` also runs when `switchMap` cancels an in-flight request, which would switch `loading` off while the newer request is still running.
+- **Store inputs are Subjects fed by action methods**, not `toObservable(signal)`. `toObservable` emits through an effect, and the app initializer awaits the first load *before* the app runs effects. A Subject is synchronous and predictable, and it's easy to drive with fake timers in tests.
+- **Verified: a stopped server behind the dev proxy returns `502 Bad Gateway` with a `text/plain` body**, not status 0. `toApiError` maps it to `UNKNOWN` as planned in `ERROR-HANDLING.md`.
 - **Seed data is fully deterministic:** fixed name arrays, a fixed base date for `createdAt`, and stable UUID-shaped ids (`00000000-0000-4000-8000-000000000001`…). Every restart and reset gives identical data and ids, which keeps demos and manual checks repeatable. Customers created at runtime get `crypto.randomUUID()`.
 - **`reset()` uses `structuredClone` of the seed.** Without a copy, create/update would change the seed array itself and reset would restore the edited data.
 - **Server `list()` sorts the array returned by `filter()`**, never the store array. `Array.sort` sorts in place, so sorting the store directly would reorder stored data on every request.
@@ -45,7 +53,7 @@ NgRx, HTTP interceptors, global error handler service, shared types package, pag
 |---|---|---|
 | express, tsx, typescript | server | API |
 | concurrently | root | run both apps with one command |
-| @angular/material | client | table, dialog, form fields, snackbar |
+| @angular/material, @angular/cdk | client | table, dialog, form fields, snackbar (added via `ng add`) |
 
 ## AI suggestions changed or rejected
 
