@@ -35,7 +35,7 @@ The error shape and codes are defined in `API.md`. If behaviour and this file di
 | 7 | Server unreachable on save | status 0, or a non-JSON proxy `5xx` | "Can't reach the server. Please try again." in the dialog's general error area | Stop the server with the dialog open, then Save |
 | 8 | Save succeeded, refresh failed | `201`/`200`, then a list error | Dialog closes with the success notification. List keeps the old results and shows the error banner | `API_FAIL_RATE=0.5`, save until it happens |
 | 9 | First load fails, or any list error with nothing on screen | any | Full-page `ErrorState` with "Try again" | Stop the server, refresh the page |
-| 10 | Search / sort / page change / reload fails while results are showing | any | Old results stay, plus an error banner with "Try again" and a close button (`store.dismissError()`). Typing again still searches | `API_FAIL_RATE=0.5`, then type in search |
+| 10 | Search / sort / page change / reload fails while results are showing | any | Old results stay, plus an error banner with "Try again" and a close button (`store.dismissError()`). Typing again still searches, even the same text as the search that failed | `API_FAIL_RATE=0.5`, then type in search |
 | 11 | Reset fails | any | Error notification with `error.message`; the list is unchanged | `API_FAIL_RATE=1`, then Reset |
 | — | Invalid `sort` / `order` | `400 BAD_REQUEST` | Can't happen from the UI (sort values are typed). If it did, handled like 9 / 10 | — |
 
@@ -48,7 +48,7 @@ When `store.create()` / `store.update()` rejects with an `ApiError`:
    any server error set before it.
 3. For each `[field, message]` in `error.fields`: if `form.get(field)` exists → `setErrors({ server: message })`
    and `markAsTouched()`. Otherwise treat it as unmatched.
-4. If there is no `fields`, or any field was unmatched → `generalError.set(error.message)`.
+4. If there are no field messages (`fields` missing or `{}`), or any field was unmatched → `generalError.set(error.message)`.
 
 In the template, inside the field's `mat-error`:
 
@@ -79,7 +79,7 @@ in a demo, that server field errors arrive under the right field.
 
 | Case(s) | Built in | Verified by |
 |---|---|---|
-| `toApiError`, store contract | Phase 2 | Phase 2 acceptance (server stopped → `UNKNOWN`), Phase 7 store + `toApiError` tests |
-| 1–8 | Phase 4 | Phase 4 acceptance criteria, Phase 7 dialog tests |
-| 9–10 | Phase 5 | Phase 5 acceptance criteria |
-| 11 | Phase 4 | Phase 4 acceptance criteria |
+| `toApiError`, store contract | Phase 2 | Phase 2 acceptance (server stopped → `UNKNOWN`); `customer-api.service.spec.ts`, `customer.store.spec.ts` |
+| 1–8 | Phase 4 | Phase 4 acceptance criteria; `customer-form-dialog.spec.ts` (1–4, 6, 7), `customer.store.spec.ts` (5, 8) |
+| 9–10 | Phase 5 | Phase 5 acceptance criteria; `customers-page.spec.ts` (10), `customer.store.spec.ts` (10) |
+| 11 | Phase 4 | Phase 4 acceptance criteria; `customer.store.spec.ts` (failed reset) |

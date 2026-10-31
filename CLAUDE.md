@@ -35,7 +35,7 @@ interview. Readability and explainability beat cleverness everywhere.
 nvm use               # Node 24 from .nvmrc — the shell may default to an older Node
 npm run install:all   # installs root, server and client deps
 npm run dev           # server on :3000 + client on :4200
-npm run test          # client tests, run once (not watch mode); add server tests here if they're written
+npm run test          # server tests (node:test via tsx), then client tests (Vitest); runs once, not watch mode
 ```
 
 ## Keeping docs in sync
@@ -60,7 +60,7 @@ docs **in the same change**:
 ```
 CLAUDE.md, README.md, package.json
 docs/       PLAN.md, API.md, ERROR-HANDLING.md, DECISIONS.md, phases/
-server/src/ index.ts, customers.routes.ts, customers.store.ts, validation.ts, errors.ts, seed.ts
+server/src/ index.ts, customers.routes.ts, customers.store.ts, validation.ts, errors.ts, seed.ts (+ *.test.ts)
 client/src/app/
   app.config.ts, app.routes.ts, app.ts (+ app.html, app.scss)
   features/customers/

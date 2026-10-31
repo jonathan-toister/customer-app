@@ -79,6 +79,21 @@ Phase 8 condenses this into the README.
 - **One `mat-paginator` under both views**, not inside the table, so cards are paged the same way. Page size options 10 / 25 / 50, default 10 (the 40 seed customers make 4 pages). Hidden on the empty and no-results states.
 - **No API call for a search that can't have results** (Phase 6). When a search for "zz" returns `total: 0`, the store remembers "zz". Typed text that contains it ("zzz", "xzz") is skipped, because the server matches a case-insensitive substring of name or email, so a longer text can only match fewer customers. It's `includes`, not `startsWith`: text added in front or behind narrows the match the same way. The memory is cleared in `reload()` (which "Try again", create and update all go through) and in `reset()`, because the data may have changed. The same rule covers an empty list: if `''` found no one, no search can match until the data changes. Known limit: a matching customer added in another tab won't show for those searches until a reload or a shorter search. The list is already stale in that case today. Only typing is skipped; sort and page clicks always call the API (on an empty result there are no page controls anyway).
 - **Focus after saving an edit goes to the page, not the edit button.** The list reload re-creates the table rows, so the button that opened the dialog no longer exists. This was the same with `MatDialog`; after Escape or Cancel, focus does return to the button.
+- **Server tests use Node's built-in test runner (`node:test`), run with `tsx --test`** (Phase 7), not supertest.
+  Node 24 and `tsx` are already there, so no new packages. They test the pure functions where the rules live
+  (`parseListQuery`, `validateCustomerInput`, the store's search, sort, pages and reset), not the HTTP routes,
+  which are thin and were checked by hand with `requests.http`. `npm run test` runs the server tests first.
+- **Client tests fake the layer below, nothing more** (Phase 7). The store test fakes `CustomerApiService` and
+  returns a `Subject` per call, so each test decides when, and whether, a response arrives (that's how the
+  "slow old answer" and "reload fails after save" cases are written). Fake timers drive the 300ms debounce and the 4s
+  toast. Dialog tests fake the CDK `DialogRef` / `DIALOG_DATA`; the page test fakes the store, `AppDialog` and
+  `BreakpointObserver`. No testing libraries were added.
+- **A failed list request doesn't block the same search text** (Phase 7 fix). The search pipeline skips text equal
+  to the last request's, so retyping "ann" after "ann" failed used to send nothing. The store now keeps a
+  `lastRequestFailed` flag (set in `catchError`, cleared on success) and lets the same text through when it's true.
+  A flag, not `error()`, because the user can close the banner and retyping should still retry.
+- **The search ✕ only shows when the search has text other than spaces** (Phase 7 fix), matching the store, which
+  trims the text. Backspace still removes the spaces.
 
 ## Deliberately not added
 
@@ -101,3 +116,4 @@ Pagination was on this list until Phase 6, when the developer chose to add it (s
 - **Phase 3, clickable table rows.** Suggested: skip them and keep only the edit icon button (less code to explain). → The developer first chose clickable rows, intending to let users edit in the table without a popup. Once built, a row click only opened the same popup as the button, and real inline editing would mean a second edit path with its own error handling (the popup is still needed for Add and the mobile cards). → Removed again; only the edit button opens the dialog.
 - **Phase 5, no spinner at startup.** The app initializer waits for the first list, so the page (and its spinner) isn't drawn until then. Suggested: stop waiting, so the page draws at once and shows its own `LoadingState`. → The developer kept the wait and asked for an animated placeholder in `index.html` instead (a CSS spinner + "Loading customers…" inside `<app-root>`). → Customers are still on screen at first render, as decided in Phase 2, and there's no blank page while they load.
 - **Phase 6, why search and sort call the API again.** The developer asked why the app calls the API for search and sort when the first call already returns every customer. Suggested: keep search and sort on the server (the assignment's "don't overload the API" expects the API to be involved, and it still works once the data grows), add the "skip searches that can't match" shortcut, and write up the client-side alternative as a trade-off. → The developer chose to **add pagination**. → With pagination the client only holds one page, so filtering or sorting in the browser would be wrong, not just a trade-off. That makes the API calls necessary.
+- **Phase 7, the search ✕ for spaces only.** Suggested: leave it, since the ✕ still clears the spaces and the list doesn't change. → The developer chose to fix it: the ✕ now shows only when the search has text other than spaces. → The toolbar now treats spaces the same way the store and page do.

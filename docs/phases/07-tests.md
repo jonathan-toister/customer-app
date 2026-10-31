@@ -44,3 +44,16 @@ E2E (Playwright) for the main flow, visual/responsive checks, server tests if sk
 
 ## Commit
 `Add tests for search, pagination, dialogs, notifications and page states`
+
+*As built:*
+- **93 tests: 59 client (Vitest), 34 server.** `npm run test` runs the server tests, then the client tests.
+- **Server tests use `node:test` with `tsx --test`, not supertest**, and test `validation.ts` and
+  `customers.store.ts` directly, not the routes (see DECISIONS.md). Route status codes are left for "what I'd test next".
+- **Extra tests beyond the list above:** `list()` sends the right query params; `update()` reloads on `NOT_FOUND`;
+  a failed reset turns loading off; the form can't be closed while saving; a server field error clears once the
+  field is edited; a cancelled dialog shows no notification; `app.spec.ts` now checks the toast is rendered.
+- **Two checks that the tests can fail:** removing the "can't match" filter fails 3 tests, and replacing
+  `switchMap` with `mergeMap` fails the "slow old answer" test. The code was put back each time.
+- **Three small findings, fixed after the developer's OK**, each with a test that failed before the fix: retyping the
+  same search after it failed now retries; an error with `fields: {}` now shows in the dialog's general error area;
+  the search ✕ no longer shows for spaces only (new `customer-toolbar.spec.ts`).

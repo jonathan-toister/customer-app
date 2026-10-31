@@ -14,7 +14,7 @@ backend. Prioritise working behaviour over polish. Stretch items are marked and 
 | 4 | Add / edit dialog + reset | `phases/04-dialog-and-reset.md` | 45 min | [x] |
 | 5 | States, responsive, a11y pass | `phases/05-states-responsive.md` | 30 min | [x] |
 | 6 | Modifications: tokens, own dialog/toast, pagination, skip empty searches | `phases/06-modifications.md` | 90–120 min | [x] |
-| 7 | Tests | `phases/07-tests.md` | 45–60 min | [ ] |
+| 7 | Tests | `phases/07-tests.md` | 45–60 min | [x] |
 | 8 | README, decisions, final review | `phases/08-docs-and-review.md` | 20 min | [ ] |
 
 ## Requirements traceability

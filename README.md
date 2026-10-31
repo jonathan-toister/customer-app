@@ -4,10 +4,11 @@ A small app for managing customers: list, search, sort, add, edit, and reset the
 The client is **Angular 22 with Angular Material**. It talks to a small **Express 5 + TypeScript** API that keeps
 customers in memory. Built as a home assignment for an Angular Front-End Developer role.
 
-**Status:** Phases 0–6 of 8 are done: the API, the client's data layer, the customers page (search, sort,
+**Status:** Phases 0–7 of 8 are done: the API, the client's data layer, the customers page (search, sort,
 pagination, table and card views), adding, editing and resetting customers, the loading, error, empty and
-no-results states with a responsive and accessibility pass, and Phase 6's changes (design tokens, our own dialog
-and notification, pagination, skipping searches that can't match). Tests come in Phase 7.
+no-results states with a responsive and accessibility pass, Phase 6's changes (design tokens, our own dialog
+and notification, pagination, skipping searches that can't match), and tests for the client and the server.
+README and final review come in Phase 8.
 Progress is tracked in [docs/PLAN.md](docs/PLAN.md).
 
 ## Prerequisites
@@ -46,7 +47,7 @@ Run from the repo root:
 |---|---|
 | `npm run install:all` | Installs dependencies for root, `server/` and `client/` |
 | `npm run dev` | Runs the API (port 3000) and the client (port 4200) together, with labelled output |
-| `npm run test` | Runs the client unit tests once (Vitest) |
+| `npm run test` | Runs the server tests (Node's built-in test runner), then the client tests (Vitest), once each |
 | `npm --prefix server run typecheck` | Type-checks the server |
 | `npm --prefix client run build` | Production build of the client into `client/dist/` |
 
@@ -82,7 +83,7 @@ SEED=empty npm run dev            # no customers, to see the "No customers yet" 
 ├── server/
 │   ├── requests.http       manual API checks
 │   └── src/                index.ts (app setup), customers.routes.ts, customers.store.ts,
-│                           validation.ts, errors.ts, seed.ts
+│                           validation.ts, errors.ts, seed.ts; *.test.ts next to what they test
 └── client/
     ├── proxy.conf.json     /api → http://localhost:3000
     └── src/
