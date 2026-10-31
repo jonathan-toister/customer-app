@@ -33,10 +33,4 @@ export class CustomerTable {
       order: sort.direction === 'asc' ? 'asc' : 'desc',
     });
   }
-
-  protected onEditClick(event: MouseEvent, customer: Customer): void {
-    // The row is clickable too; without this, one click on the button would emit edit twice.
-    event.stopPropagation();
-    this.edit.emit(customer);
-  }
 }

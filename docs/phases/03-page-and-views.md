@@ -37,8 +37,8 @@ The real list UI: a toolbar with search, sort and view switch, and two interchan
   (a landscape window up to 959px wide counts as a phone), which is harder to predict and to test in DevTools.
 - **The toolbar has one extra output, `clear`**, for the × button. The page calls `store.clearQuery()`, which searches
   at once. `queryChange('')` would wait for the 300ms debounce like normal typing.
-- **The whole table row is clickable to edit**, as well as the edit icon button. The button stops the click from
-  bubbling up to the row, so one click doesn't emit `edit` twice. Keyboard users use the button.
+- **Rows are not clickable; only the edit icon button opens edit.** Clickable rows were built first and then removed
+  (see the AI log in `DECISIONS.md`).
 - `CustomerView` (`'table' | 'cards'`) is exported from `customer-toolbar.ts`, because the toolbar owns the view switch.
   It's a UI type, so it isn't in `customer.model.ts`.
 - `MAT_ICON_DEFAULT_OPTIONS` in `app.config.ts` makes `<mat-icon>` use the Material Symbols font that `index.html` loads.

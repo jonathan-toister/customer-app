@@ -37,7 +37,7 @@
           matIconButton
           type="button"
           [attr.aria-label]="'Edit ' + customer.name"
-          (click)="onEditClick($event, customer)"
+          (click)="edit.emit(customer)"
         >
           <mat-icon>edit</mat-icon>
         </button>
@@ -45,7 +45,6 @@
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="columns"></tr>
-    <!-- Mouse users can click anywhere on the row; keyboard users use the edit button. -->
-    <tr mat-row *matRowDef="let customer; columns: columns" class="row" (click)="edit.emit(customer)"></tr>
+    <tr mat-row *matRowDef="let customer; columns: columns"></tr>
   </table>
 </div>
