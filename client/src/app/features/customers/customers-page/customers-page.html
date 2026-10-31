@@ -8,6 +8,8 @@
   (clear)="store.clearQuery()"
   (sortChange)="store.setSort($event)"
   (viewChange)="onViewChange($event)"
+  (add)="openAdd()"
+  (reset)="confirmReset()"
 />
 
 <!-- Temporary plain-text states; phase 5 replaces them with the shared state components. -->
@@ -29,10 +31,15 @@
 } @else {
   @switch (activeView()) {
     @case ('table') {
-      <app-customer-table [customers]="store.customers()" [sort]="store.sort()" (sortChange)="store.setSort($event)" />
+      <app-customer-table
+        [customers]="store.customers()"
+        [sort]="store.sort()"
+        (sortChange)="store.setSort($event)"
+        (edit)="openEdit($event)"
+      />
     }
     @case ('cards') {
-      <app-customer-cards [customers]="store.customers()" />
+      <app-customer-cards [customers]="store.customers()" (edit)="openEdit($event)" />
     }
   }
 }

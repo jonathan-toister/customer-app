@@ -29,6 +29,17 @@ Create and edit customers in one dialog with client and server validation; reset
    ("Reset all customers? This replaces every change with the original demo data.", confirm label "Reset").
    On confirm → `store.reset()` → snackbar "Demo data restored". On failure → snackbar with the error message.
 
+*As built:*
+- **Cancel is disabled while saving** too, not only backdrop and Escape. Cancelling mid-save would still save the
+  customer, with no snackbar afterwards.
+- **The confirm dialog text is split** into the title "Reset all customers?" and the message "This replaces every
+  change with the original demo data.", because `ConfirmDialog` takes both.
+- **The store shows `loading` for the whole reset**, not only for the reload after it, so the progress bar appears
+  right after confirming. `reset()` sets `loading = false` if the reset request fails. The toolbar's progress bar
+  label changed from "Searching" to "Loading customers", since it now also shows for resets and post-save reloads.
+- **Case 8's "the list shows the error banner"** can only be fully seen in Phase 5. The store does set `error`, but
+  the page shows errors only when the list is empty until Phase 5 adds the banner.
+
 ## Acceptance criteria
 - Add a customer → dialog closes, snackbar shows, the new customer appears in the list in the right sort position.
 - Edit a customer's status → reflected in both table and cards.

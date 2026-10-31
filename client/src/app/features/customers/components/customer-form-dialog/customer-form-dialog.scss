@@ -1,0 +1,18 @@
+mat-dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+// The dialog content scrolls on its own, so the fields need some room from the top edge.
+mat-form-field:first-child {
+  margin-top: 8px;
+}
+
+.general-error {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 4px;
+  color: var(--mat-sys-on-error-container);
+  background: var(--mat-sys-error-container);
+}

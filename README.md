@@ -4,8 +4,9 @@ A small app for managing customers: list, search, sort, add, edit, and reset the
 The client is **Angular 22 with Angular Material**. It talks to a small **Express 5 + TypeScript** API that keeps
 customers in memory. Built as a home assignment for an Angular Front-End Developer role.
 
-**Status:** Phases 0–3 of 7 are done: the API, the client's data layer, and the customers page (search, sort,
-table and card views). "Add customer", edit and "Reset demo data" are visible but not wired up yet (Phase 4).
+**Status:** Phases 0–4 of 7 are done: the API, the client's data layer, the customers page (search, sort,
+table and card views), and adding, editing and resetting customers. Loading, error and empty states get their final
+form in Phase 5.
 Progress is tracked in [docs/PLAN.md](docs/PLAN.md).
 
 ## Prerequisites
@@ -82,10 +83,13 @@ API_DELAY_MS=1500 npm run dev     # slow responses, to see loading states and ca
     ├── proxy.conf.json     /api → http://localhost:3000
     └── src/app/
         ├── app.ts, app.config.ts, app.routes.ts
-        └── features/customers/
-            ├── data/       customer.model.ts, customer-api.service.ts, customer.store.ts
-            ├── customers-page/   the smart page: connects the store to the components below
-            └── components/       customer-toolbar/, customer-table/, customer-cards/ (inputs in, outputs out)
+        ├── features/customers/
+        │   ├── data/       customer.model.ts, customer-api.service.ts, customer.store.ts
+        │   ├── customers-page/   the smart page: connects the store to the components and dialogs
+        │   └── components/       customer-toolbar/, customer-table/, customer-cards/ (inputs in, outputs out),
+        │                         customer-form-dialog/ (add/edit; saves through the store)
+        └── shared/ui/
+            └── confirm-dialog/   generic yes/no dialog, no customer knowledge
 ```
 
 ## Documentation

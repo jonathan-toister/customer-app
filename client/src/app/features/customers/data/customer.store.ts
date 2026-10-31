@@ -141,7 +141,14 @@ export class CustomerStore {
 
   /** Restores the seed data and returns the list to its default view. Rejects with ApiError. */
   async reset(): Promise<void> {
-    await firstValueFrom(this.api.reset());
+    // Show the progress bar from the start, not only during the reload after it.
+    this.state.loading.set(true);
+    try {
+      await firstValueFrom(this.api.reset());
+    } catch (error) {
+      this.state.loading.set(false);
+      throw error;
+    }
     this.state.sort.set(DEFAULT_SORT);
     this.setQuery('');
     this.fetch();

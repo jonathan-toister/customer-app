@@ -1,0 +1,9 @@
+<h2 mat-dialog-title>{{ data.title }}</h2>
+<mat-dialog-content>{{ data.message }}</mat-dialog-content>
+<!-- Cancel comes first, so it gets the initial focus: Enter alone never confirms. -->
+<mat-dialog-actions align="end">
+  <button matButton type="button" [mat-dialog-close]="false">Cancel</button>
+  <button matButton="filled" type="button" [mat-dialog-close]="true">
+    {{ data.confirmLabel }}
+  </button>
+</mat-dialog-actions>

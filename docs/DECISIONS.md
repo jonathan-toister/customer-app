@@ -53,6 +53,13 @@ Phase 7 condenses this into the README.
 - **Edit only through the edit icon button**, not by clicking the row. A row click could only open the same dialog, so it added a second way in (and a double-click guard) with no new ability. The button works with the keyboard and has an `aria-label` per customer.
 - **`MAT_ICON_DEFAULT_OPTIONS` sets the icon font to Material Symbols.** `ng add` put the Material Symbols font in `index.html`, but `<mat-icon>` defaults to the older `material-icons` class, so icons would show as text.
 - **Component files:** separate `.html` / `.scss` per component (like `App`), and no generated `.spec.ts` stubs. Tests are written in Phase 6. *Developer's choice when asked.*
+- **Reactive Forms, not Signal Forms.** Signal Forms (`form()` from `@angular/forms/signals`) became stable API in Angular 22. Reactive Forms were kept because the server-error steps in `ERROR-HANDLING.md` are written for them (`setErrors`, `enable()` before `setErrors`), they work well with `mat-form-field` / `mat-error`, and they're widely known. Signal Forms would fit the signals-everywhere style and are a reasonable next step. *Developer's choice when asked.*
+- **The form dialog reads `getRawValue()` before `form.disable()`.** Disabled controls are left out of `form.value`, so reading after disabling would send an empty object.
+- **One request per save is guaranteed by a `saving()` check at the top of `submit()`**, not only by `[disabled]` on the button. Enter in a field submits the form too, and the guard covers every path.
+- **Cancel is disabled while saving** (as well as backdrop and Escape, via `dialogRef.disableClose`). Closing mid-save would not stop the request: the customer would be saved with no snackbar.
+- **The page picks "Customer added" or "Customer updated"** from whether it passed a customer to the dialog, so the dialog's result stays `{ kind: 'saved'; customer }` as specified.
+- **`ConfirmDialog` is generic** (`title`, `message`, `confirmLabel`) and closes with `true` / `false`. Backdrop or Escape gives `undefined`, so the caller checks `=== true`. Cancel comes first, so it gets the initial focus and Enter alone never confirms a reset.
+- **Reset shows the progress bar from the moment it's confirmed.** The store sets `loading` before the reset request (and clears it if that fails), rather than only during the reload after it. Otherwise there's ~400ms with no feedback. *Developer's choice when asked.*
 
 ## Deliberately not added
 
