@@ -66,8 +66,10 @@ client/src/app/
   features/customers/
     data/          customer.model.ts, customer-api.service.ts, customer.store.ts
     customers-page/
-    components/    customer-toolbar/, customer-table/, customer-cards/, customer-form-dialog/
-  shared/ui/       loading-state/, error-state/, empty-state/, confirm-dialog/
+    components/    customer-toolbar/, customer-table/, customer-cards/, customer-status-badge/,
+                   customer-form-dialog/
+  shared/ui/       loading-state/, error-state/, empty-state/, error-banner/, confirm-dialog/
+client/src/        styles.scss (Material theme), _tokens.scss (spacing, radius, status colours)
 ```
 
 File naming: components use the Angular 2025 style (`customers-page/customers-page.ts`, class `CustomersPage`, no
@@ -97,4 +99,6 @@ auth, i18n, SSR. Don't add new dependencies without noting them in `DECISIONS.md
 
 - Small, readable functions. Comments only where the *why* isn't obvious (e.g. the search pipeline operators).
 - Names over abbreviations. No barrel `index.ts` files.
+- Styles use the CSS variables from `client/src/_tokens.scss` (spacing, radius, status colours) and `--mat-sys-*`
+  (colour, type). No raw px spacing or hex colours in component styles.
 - UI copy is short and specific ("No customers match “ann”", not "No data").

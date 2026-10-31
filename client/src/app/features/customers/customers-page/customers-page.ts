@@ -8,6 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { map } from 'rxjs';
 import { ConfirmDialog, ConfirmDialogData } from '../../../shared/ui/confirm-dialog/confirm-dialog';
 import { EmptyState } from '../../../shared/ui/empty-state/empty-state';
+import { ErrorBanner } from '../../../shared/ui/error-banner/error-banner';
 import { ErrorState } from '../../../shared/ui/error-state/error-state';
 import { LoadingState } from '../../../shared/ui/loading-state/loading-state';
 import { CustomerCards } from '../components/customer-cards/customer-cards';
@@ -34,6 +35,7 @@ const SNACKBAR_DURATION_MS = 4000;
     LoadingState,
     ErrorState,
     EmptyState,
+    ErrorBanner,
     MatButton,
     MatIconButton,
     MatIcon,

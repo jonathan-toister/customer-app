@@ -16,7 +16,7 @@
       <mat-card-content>
         <p class="email">{{ customer.email }}</p>
         <div class="meta">
-          <span class="status status--{{ customer.status }}">{{ customer.status }}</span>
+          <app-customer-status-badge [status]="customer.status" />
           <span class="created">Created {{ customer.createdAt | date: 'mediumDate' }}</span>
         </div>
       </mat-card-content>

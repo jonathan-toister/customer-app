@@ -6,7 +6,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: var(--app-space-md);
 }
 
 .search {
@@ -16,7 +16,7 @@
 .sort {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--app-space-xs);
 }
 
 .sort-field {
@@ -26,13 +26,13 @@
 .actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--app-space-xs);
   margin-left: auto;
 }
 
 .progress-slot {
   height: 4px;
-  margin-top: 8px;
+  margin-top: var(--app-space-sm);
 }
 
 // On a phone the search field gets its own row.

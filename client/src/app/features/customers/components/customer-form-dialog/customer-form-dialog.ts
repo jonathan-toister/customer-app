@@ -12,6 +12,7 @@ import {
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatOption, MatSelect } from '@angular/material/select';
+import { ErrorBanner } from '../../../../shared/ui/error-banner/error-banner';
 import { ApiError, Customer, CustomerInput, CustomerStatus } from '../../data/customer.model';
 import { CustomerStore } from '../../data/customer.store';
 
@@ -49,6 +50,7 @@ const STATUSES: { value: CustomerStatus; label: string }[] = [
     MatInput,
     MatSelect,
     MatOption,
+    ErrorBanner,
   ],
   templateUrl: './customer-form-dialog.html',
   styleUrl: './customer-form-dialog.scss',

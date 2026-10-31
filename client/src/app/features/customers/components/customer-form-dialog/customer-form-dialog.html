@@ -50,7 +50,7 @@
     </mat-form-field>
 
     @if (generalError(); as message) {
-      <p class="general-error" role="alert">{{ message }}</p>
+      <app-error-banner [message]="message" />
     }
   </mat-dialog-content>
 

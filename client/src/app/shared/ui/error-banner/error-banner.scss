@@ -1,0 +1,17 @@
+:host {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--app-space-sm);
+  // Tall enough for a button, so the box is the same height with or without one.
+  min-height: 48px;
+  box-sizing: border-box;
+  padding: var(--app-space-xs) var(--app-space-xs) var(--app-space-xs) var(--app-space-md);
+  border-radius: var(--app-radius-md);
+  color: var(--mat-sys-on-error-container);
+  background: var(--mat-sys-error-container);
+}
+
+.message {
+  flex: 1 1 200px;
+}

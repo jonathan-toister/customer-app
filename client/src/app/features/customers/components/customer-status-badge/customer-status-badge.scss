@@ -1,0 +1,22 @@
+.badge {
+  display: inline-block;
+  padding: var(--app-space-2xs) var(--app-space-sm);
+  border-radius: var(--app-radius-pill);
+  font: var(--mat-sys-label-medium);
+  text-transform: capitalize;
+}
+
+.badge--active {
+  background-color: var(--app-status-active-bg);
+  color: var(--app-status-active-fg);
+}
+
+.badge--inactive {
+  background-color: var(--app-status-inactive-bg);
+  color: var(--app-status-inactive-fg);
+}
+
+.badge--pending {
+  background-color: var(--app-status-pending-bg);
+  color: var(--app-status-pending-fg);
+}

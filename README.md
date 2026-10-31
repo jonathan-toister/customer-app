@@ -84,16 +84,21 @@ SEED=empty npm run dev            # no customers, to see the "No customers yet" 
 │                           validation.ts, errors.ts, seed.ts
 └── client/
     ├── proxy.conf.json     /api → http://localhost:3000
-    └── src/app/
-        ├── app.ts, app.config.ts, app.routes.ts
-        ├── features/customers/
-        │   ├── data/       customer.model.ts, customer-api.service.ts, customer.store.ts
-        │   ├── customers-page/   the smart page: connects the store to the components and dialogs
-        │   └── components/       customer-toolbar/, customer-table/, customer-cards/ (inputs in, outputs out),
-        │                         customer-form-dialog/ (add/edit; saves through the store)
-        └── shared/ui/            no customer knowledge, inputs in, outputs out
-            ├── confirm-dialog/   generic yes/no dialog
-            └── loading-state/, error-state/, empty-state/   full-area page states
+    └── src/
+        ├── styles.scss     Material theme (colours, type)
+        ├── _tokens.scss    the app's own design values: spacing, radius, status colours
+        └── app/
+            ├── app.ts, app.config.ts, app.routes.ts
+            ├── features/customers/
+            │   ├── data/             customer.model.ts, customer-api.service.ts, customer.store.ts
+            │   ├── customers-page/   the smart page: connects the store to the components and dialogs
+            │   └── components/       customer-toolbar/, customer-table/, customer-cards/,
+            │                         customer-status-badge/ (inputs in, outputs out),
+            │                         customer-form-dialog/ (add/edit; saves through the store)
+            └── shared/ui/            no customer knowledge, inputs in, outputs out
+                ├── confirm-dialog/   generic yes/no dialog
+                ├── error-banner/     red inline error box (list banner, dialog error)
+                └── loading-state/, error-state/, empty-state/   full-area page states
 ```
 
 ## Documentation

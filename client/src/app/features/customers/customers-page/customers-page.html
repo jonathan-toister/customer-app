@@ -45,14 +45,12 @@
 } @else {
   <!-- The list is still there, so a failed refresh gets a banner instead of replacing it. -->
   @if (store.error(); as error) {
-    <div class="error-banner" role="alert">
-      <mat-icon>error</mat-icon>
-      <span class="error-message">{{ error.message }}</span>
+    <app-error-banner [message]="error.message">
       <button matButton type="button" (click)="store.reload()">Try again</button>
       <button matIconButton type="button" aria-label="Dismiss error" (click)="store.dismissError()">
         <mat-icon>close</mat-icon>
       </button>
-    </div>
+    </app-error-banner>
   }
 
   @switch (activeView()) {
