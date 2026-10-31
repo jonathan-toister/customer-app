@@ -26,6 +26,8 @@ export class CustomerStore {
     error: signal<ApiError | null>(null),
     query: signal(''),
     sort: signal<CustomerSort>(DEFAULT_SORT),
+    /** True once any list response has arrived. Never goes back to false. */
+    hasLoaded: signal(false),
   };
 
   readonly customers = this.state.customers.asReadonly();
@@ -37,8 +39,11 @@ export class CustomerStore {
 
   readonly isEmpty = computed(() => this.customers().length === 0);
   readonly hasQuery = computed(() => this.query().trim() !== '');
-  /** Loading with nothing on screen yet: the only time the page shows a full spinner. */
-  readonly initialLoad = computed(() => this.loading() && this.isEmpty());
+  /**
+   * Loading before any list has arrived: the only time the page shows a full spinner.
+   * Not "loading and empty": that would also flash the spinner while refining a search with no results.
+   */
+  readonly initialLoad = computed(() => this.loading() && !this.state.hasLoaded());
 
   private readonly keystrokes$ = new Subject<string>();
   private readonly requests$ = new Subject<ListParams>();
@@ -70,6 +75,7 @@ export class CustomerStore {
           this.api.list(q, sort).pipe(
             tap((customers) => {
               this.state.customers.set(customers);
+              this.state.hasLoaded.set(true);
               this.state.loading.set(false);
               this.settled$.next();
             }),
@@ -116,6 +122,11 @@ export class CustomerStore {
 
   reload(): void {
     this.fetch();
+  }
+
+  /** Hides the error banner. The next request clears the error anyway; this is for the close button. */
+  dismissError(): void {
+    this.state.error.set(null);
   }
 
   /** Resolves once the save succeeds, even if the reload after it fails. Rejects with ApiError. */
