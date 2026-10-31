@@ -11,6 +11,15 @@ export interface ListQuery {
   q: string;
   sort: SortField;
   order: SortOrder;
+  page: number;
+  pageSize: number;
+}
+
+export interface CustomerPage {
+  items: Customer[];
+  total: number;
+  page: number;
+  pageSize: number;
 }
 
 /** Dev knob: `SEED=empty` starts (and resets) with no customers, to show the client's empty state. */
@@ -36,14 +45,26 @@ function compareBy(field: SortField): (a: Customer, b: Customer) => number {
   return (a, b) => a[field].localeCompare(b[field], undefined, { sensitivity: 'base' });
 }
 
-export function list({ q, sort, order }: ListQuery): Customer[] {
+export function list({ q, sort, order, page, pageSize }: ListQuery): CustomerPage {
   const compare = compareBy(sort);
   const direction = order === 'asc' ? 1 : -1;
 
   // filter() returns a new array, so sorting it never reorders the store itself.
-  return customers
+  const matches = customers
     .filter((customer) => q === '' || matchesQuery(customer, q))
     .sort((a, b) => direction * compare(a, b));
+
+  // A page past the end becomes the last page (page 1 when nothing matches). See docs/API.md.
+  const lastPage = Math.max(1, Math.ceil(matches.length / pageSize));
+  const servedPage = Math.min(page, lastPage);
+  const start = (servedPage - 1) * pageSize;
+
+  return {
+    items: matches.slice(start, start + pageSize),
+    total: matches.length,
+    page: servedPage,
+    pageSize,
+  };
 }
 
 export function getById(id: string): Customer | undefined {

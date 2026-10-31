@@ -66,4 +66,14 @@
       <app-customer-cards [customers]="store.customers()" (edit)="openEdit($event)" />
     }
   }
+
+  <!-- One paginator for both views. It counts pages from 0, the API from 1. -->
+  <mat-paginator
+    [length]="store.total()"
+    [pageIndex]="store.page() - 1"
+    [pageSize]="store.pageSize()"
+    [pageSizeOptions]="pageSizeOptions"
+    aria-label="Choose a page of customers"
+    (page)="store.setPage($event.pageIndex + 1, $event.pageSize)"
+  />
 }

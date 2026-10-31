@@ -22,6 +22,25 @@ export interface CustomerSort {
 
 export const DEFAULT_SORT: CustomerSort = { field: 'createdAt', order: 'desc' };
 
+export const DEFAULT_PAGE_SIZE = 10;
+
+/** What the list request asks for. `page` starts at 1, like the API. */
+export interface CustomerListParams {
+  q: string;
+  sort: CustomerSort;
+  page: number;
+  pageSize: number;
+}
+
+/** One page of the list, as the API returns it. `total` counts every match, not just this page. */
+export interface CustomerPage {
+  items: Customer[];
+  total: number;
+  /** The page the server actually served: a page past the end comes back as the last page. */
+  page: number;
+  pageSize: number;
+}
+
 /** The server's error codes, plus the client-only 'UNKNOWN' (see docs/ERROR-HANDLING.md). */
 export type ApiErrorCode =
   | 'VALIDATION_ERROR'

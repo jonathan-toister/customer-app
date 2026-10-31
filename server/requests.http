@@ -5,7 +5,7 @@
 @base = http://localhost:3000/api/customers
 @seedId = 00000000-0000-4000-8000-000000000001
 
-### List (default: createdAt desc)
+### List (default: createdAt desc, page 1 of 10)
 GET {{base}}
 
 ### Search name or email, case-insensitive and trimmed
@@ -16,6 +16,18 @@ GET {{base}}?sort=name&order=asc
 
 ### Invalid sort -> 400 BAD_REQUEST
 GET {{base}}?sort=banana
+
+### Second page of 10 -> items 11-20, total 40
+GET {{base}}?page=2&pageSize=10
+
+### Page past the end -> clamped to the last page (page: 4)
+GET {{base}}?page=99
+
+### Invalid page -> 400 BAD_REQUEST
+GET {{base}}?page=0
+
+### pageSize too big -> 400 BAD_REQUEST
+GET {{base}}?pageSize=500
 
 ### Get one
 GET {{base}}/{{seedId}}

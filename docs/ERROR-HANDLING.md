@@ -35,7 +35,7 @@ The error shape and codes are defined in `API.md`. If behaviour and this file di
 | 7 | Server unreachable on save | status 0, or a non-JSON proxy `5xx` | "Can't reach the server. Please try again." in the dialog's general error area | Stop the server with the dialog open, then Save |
 | 8 | Save succeeded, refresh failed | `201`/`200`, then a list error | Dialog closes with the success notification. List keeps the old results and shows the error banner | `API_FAIL_RATE=0.5`, save until it happens |
 | 9 | First load fails, or any list error with nothing on screen | any | Full-page `ErrorState` with "Try again" | Stop the server, refresh the page |
-| 10 | Search / sort / reload fails while results are showing | any | Old results stay, plus an error banner with "Try again" and a close button (`store.dismissError()`). Typing again still searches | `API_FAIL_RATE=0.5`, then type in search |
+| 10 | Search / sort / page change / reload fails while results are showing | any | Old results stay, plus an error banner with "Try again" and a close button (`store.dismissError()`). Typing again still searches | `API_FAIL_RATE=0.5`, then type in search |
 | 11 | Reset fails | any | Error notification with `error.message`; the list is unchanged | `API_FAIL_RATE=1`, then Reset |
 | — | Invalid `sort` / `order` | `400 BAD_REQUEST` | Can't happen from the UI (sort values are typed). If it did, handled like 9 / 10 | — |
 

@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, throwError } from 'rxjs';
-import { ApiError, Customer, CustomerInput, CustomerSort } from './customer.model';
+import { ApiError, Customer, CustomerInput, CustomerListParams, CustomerPage } from './customer.model';
 
 // Relative URL: the dev server proxies /api to the Express server (proxy.conf.json).
 const CUSTOMERS_URL = '/api/customers';
@@ -16,12 +16,16 @@ const UNREACHABLE: ApiError = {
 export class CustomerApiService {
   private readonly http = inject(HttpClient);
 
-  list(q: string, sort: CustomerSort): Observable<Customer[]> {
-    let params = new HttpParams().set('sort', sort.field).set('order', sort.order);
+  list({ q, sort, page, pageSize }: CustomerListParams): Observable<CustomerPage> {
+    let params = new HttpParams()
+      .set('sort', sort.field)
+      .set('order', sort.order)
+      .set('page', page)
+      .set('pageSize', pageSize);
     if (q !== '') {
       params = params.set('q', q);
     }
-    return this.http.get<Customer[]>(CUSTOMERS_URL, { params }).pipe(catchError(rethrowAsApiError));
+    return this.http.get<CustomerPage>(CUSTOMERS_URL, { params }).pipe(catchError(rethrowAsApiError));
   }
 
   create(input: CustomerInput): Observable<Customer> {

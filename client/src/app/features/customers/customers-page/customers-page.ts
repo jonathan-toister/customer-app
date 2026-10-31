@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
+import { MatPaginator } from '@angular/material/paginator';
 import { map } from 'rxjs';
 import { ConfirmDialog, ConfirmDialogData } from '../../../shared/ui/confirm-dialog/confirm-dialog';
 import { AppDialog } from '../../../shared/ui/dialog-shell/app-dialog.service';
@@ -23,6 +24,7 @@ import { ApiError, Customer } from '../data/customer.model';
 import { CustomerStore } from '../data/customer.store';
 
 const VIEW_STORAGE_KEY = 'customers.view';
+const PAGE_SIZE_OPTIONS = [10, 25, 50];
 
 /** The customers screen: connects the store to the toolbar, the views and the dialogs. */
 @Component({
@@ -38,6 +40,7 @@ const VIEW_STORAGE_KEY = 'customers.view';
     MatButton,
     MatIconButton,
     MatIcon,
+    MatPaginator,
   ],
   templateUrl: './customers-page.html',
   styleUrl: './customers-page.scss',
@@ -61,15 +64,17 @@ export class CustomersPage {
   /** Derived, not stored: on mobile it's always cards, otherwise whatever the user picked. */
   protected readonly activeView = computed(() => (this.isMobile() ? 'cards' : this.selectedView()));
 
+  protected readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
+
   /** A request is running with results already on screen: show the thin bar, not a full spinner. */
   protected readonly busy = computed(() => this.store.loading() && !this.store.initialLoad());
 
-  /** "12 customers" under the toolbar. Blank while there's no list to count (first load, full-page error). */
+  /** "40 customers" under the toolbar: every match, not just this page. Blank while there's no list to count. */
   protected readonly resultCountLabel = computed(() => {
     if (this.store.initialLoad() || (this.store.error() && this.store.isEmpty())) {
       return '';
     }
-    const count = this.store.customers().length;
+    const count = this.store.total();
     return count === 1 ? '1 customer' : `${count} customers`;
   });
 

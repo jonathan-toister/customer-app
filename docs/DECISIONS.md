@@ -10,10 +10,10 @@ Phase 8 condenses this into the README.
 - **Smart vs presentational split.** `CustomersPage` and `CustomerFormDialog` talk to the store; toolbar, views and state components only use inputs/outputs. Views are swappable and trivially testable.
 - **Store is `providedIn: 'root'`** because the app initializer must call it before the page exists.
 - **Data on startup via `provideAppInitializer`.** It awaits the first load; `load()` never rejects (errors go into the `error` signal), so a failing API shows the error state instead of a blank app.
-- **Search and sort run on the server.** The client is written as if the dataset were large. With a few hundred records client-side filtering would also be valid (no API calls at all) — this is a deliberate trade-off to discuss.
+- **Search, sort and paging run on the server.** Until Phase 6 there was no pagination, so the first request already brought every customer, and filtering in the browser would have been a valid choice (no API calls at all). Pagination settles it: the client only ever holds one page, so it can't search or sort the rest. *Phase 6, developer's choice (see the AI log).*
 - **Search pipeline:** `trim → debounceTime(300) → distinctUntilChanged → switchMap(api)` with `catchError` *inside* the `switchMap` so one failed request doesn't kill the stream. Sort changes bypass the debounce (they're single clicks).
 - **Results stay visible while a search is in flight** (thin progress bar instead of a full spinner) so typing feels responsive.
-- **After create/update/reset the store re-fetches the list** with current params instead of patching locally — the server owns filtering and sorting, so this is always correct. Optimistic updates are listed as a possible improvement.
+- **After create/update/reset the store re-fetches the list** with current params (same page for create/update, page 1 for reset) instead of patching locally — the server owns filtering, sorting and paging, so this is always correct. A customer added while on page 3 appears on page 1 (newest first), which the success notification covers. Optimistic updates are listed as a possible improvement.
 - **The form dialog saves through the store itself** (not "return the value and let the page save"). Reason: the dialog must stay open and show server errors (e.g. `409` email taken) next to the field. *This changed during planning — the first sketch had the page doing the save.*
 - **Multiple views (table / cards) need a shared sort control** in the toolbar, because Material's `matSort` only exists on table headers. Table headers are also bound to the same store state, so both stay in sync.
 - **Mobile forces the card view** and hides the view switcher; the chosen desktop view is remembered in `localStorage`.
@@ -73,6 +73,10 @@ Phase 8 condenses this into the README.
 
 - **Our own dialog design on the CDK `Dialog`, not `MatDialog`** (Phase 6). Every dialog uses `DialogShell` (heading, content, actions) and opens through `AppDialog`, so the look and the settings live in one place each. The CDK `Dialog` has no styles, but it does the parts that are easy to get wrong by hand: focus trap, Escape and backdrop closing (blocked by `disableClose`), focus back to the opener, `role="dialog"` and `aria-modal`. A hand-made overlay or a native `<dialog>` would mean rebuilding those. `AppDialog` gives each dialog an id, and `DialogShell` names its heading `<id>-heading`, which is passed as `ariaLabelledBy`. That uses public config only, not the CDK's private `_addAriaLabelledBy`. `DialogShell` injects the CDK `DialogRef` (a framework service, not app state) to read that id.
 - **Notifications are our own `Toast`, fed by a small `NotificationService`, not `MatSnackBar`** (Phase 6). One message at a time, 4s, `success` or `error`; `App` renders the toast once. It isn't the "global error service" CLAUDE.md rules out: it catches nothing and decides nothing, it only displays what a caller passes. The toast element is always in the page (`role="status"`), because screen readers don't announce a live region that's inserted with its text already set. "This customer no longer exists" is an `error` notification, since the edit wasn't saved. The page calls the service directly; its old `notify()` helper became a pass-through and was removed.
+- **Pagination: `page` / `pageSize` params, response `{ items, total, page, pageSize }`** (Phase 6). `page` starts at 1, as people count pages; the page converts from `mat-paginator`'s 0-based `pageIndex` in one place. `total` drives the result count ("40 customers") and `isEmpty`.
+- **A page past the end is clamped by the server to the last page**, and the response says which page it served; the store takes `page` from the response. Without this, a reload after the data shrinks would show an empty page plus "No customers", and the client would need a second request to recover.
+- **Search, clear, sort and reset go back to page 1; reloads after a save and "Try again" stay on the current page.** A new search or sort shows a different list, so the old page number means nothing. Page size is kept across reset: it's the user's preference, not data. `setPage` sets page and size at once and fetches with no debounce, like sort.
+- **One `mat-paginator` under both views**, not inside the table, so cards are paged the same way. Page size options 10 / 25 / 50, default 10 (the 40 seed customers make 4 pages). Hidden on the empty and no-results states.
 - **Focus after saving an edit goes to the page, not the edit button.** The list reload re-creates the table rows, so the button that opened the dialog no longer exists. This was the same with `MatDialog`; after Escape or Cancel, focus does return to the button.
 
 ## Deliberately not added
@@ -86,7 +90,7 @@ Pagination was on this list until Phase 6, when the developer chose to add it (s
 |---|---|---|
 | express, tsx, typescript | server | API |
 | concurrently | root | run both apps with one command |
-| @angular/material, @angular/cdk | client | table, form fields, buttons (Material); the CDK `Dialog` under our own dialog design (added via `ng add`) |
+| @angular/material, @angular/cdk | client | table, form fields, buttons, paginator (Material); the CDK `Dialog` under our own dialog design (added via `ng add`) |
 
 ## AI suggestions changed or rejected
 

@@ -18,3 +18,9 @@ app-customer-toolbar {
 app-error-banner {
   margin-bottom: var(--app-space-md);
 }
+
+mat-paginator {
+  margin-top: var(--app-space-sm);
+  // Sits on the page background, like the table, instead of Material's own surface colour.
+  background: transparent;
+}

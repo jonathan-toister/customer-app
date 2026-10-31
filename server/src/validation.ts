@@ -17,6 +17,17 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
+const DEFAULT_PAGE_SIZE = 10;
+const MAX_PAGE_SIZE = 100;
+
+/** A query param that must be a whole number. Missing → the default; anything else that isn't digits → null. */
+function wholeNumberParam(value: unknown, defaultValue: number): number | null {
+  if (value === undefined) {
+    return defaultValue;
+  }
+  return typeof value === 'string' && /^\d+$/.test(value) ? Number(value) : null;
+}
+
 function trimmedString(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
 }
@@ -59,5 +70,15 @@ export function parseListQuery(query: Record<string, unknown>): ListQueryResult 
   if (!isOneOf(SORT_ORDERS, order)) {
     return { ok: false, message: `order must be one of: ${SORT_ORDERS.join(', ')}` };
   }
-  return { ok: true, value: { q: trimmedString(query.q), sort, order } };
+
+  const page = wholeNumberParam(query.page, 1);
+  if (page === null || page < 1) {
+    return { ok: false, message: 'page must be a whole number, 1 or more' };
+  }
+  const pageSize = wholeNumberParam(query.pageSize, DEFAULT_PAGE_SIZE);
+  if (pageSize === null || pageSize < 1 || pageSize > MAX_PAGE_SIZE) {
+    return { ok: false, message: `pageSize must be a whole number from 1 to ${MAX_PAGE_SIZE}` };
+  }
+
+  return { ok: true, value: { q: trimmedString(query.q), sort, order, page, pageSize } };
 }

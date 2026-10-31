@@ -54,7 +54,8 @@ Run from the repo root:
 
 - The server starts with **40 seeded customers**, held in memory. Restarting the server, or calling
   `POST /api/customers/reset`, restores the original data.
-- Search and sort run on the server (`GET /api/customers?q=ann&sort=name&order=asc`).
+- Search, sort and paging run on the server (`GET /api/customers?q=ann&sort=name&order=asc&page=1&pageSize=10`).
+  The response is one page: `{ items, total, page, pageSize }`.
 - The full contract (endpoints, validation, error shape) is in [docs/API.md](docs/API.md).
   [`server/requests.http`](server/requests.http) has a ready-made request for each endpoint (VS Code REST Client extension).
 

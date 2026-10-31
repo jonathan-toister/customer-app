@@ -18,6 +18,14 @@ interface Customer {
 }
 
 type CustomerInput = Pick<Customer, 'name' | 'email' | 'status'>;
+
+/** One page of the list. */
+interface CustomerPage {
+  items: Customer[];     // this page's customers, already filtered and sorted
+  total: number;         // how many customers match `q`, across all pages
+  page: number;          // the page actually served (see clamping below)
+  pageSize: number;
+}
 ```
 
 ## Endpoints
@@ -31,9 +39,16 @@ Query params (all optional):
 | `q` | free text; case-insensitive substring match on `name` **or** `email`; trimmed; empty = no filter | — |
 | `sort` | `name` \| `email` \| `status` \| `createdAt` | `createdAt` |
 | `order` | `asc` \| `desc` | `desc` |
+| `page` | whole number, 1 or more (1 is the first page) | `1` |
+| `pageSize` | whole number from 1 to 100 | `10` |
 
-Invalid `sort` / `order` values → `400`.
-`200` → `Customer[]` (no pagination — see known limitations).
+Invalid `sort` / `order` / `page` / `pageSize` values → `400 BAD_REQUEST`.
+`200` → `CustomerPage`. The server filters, then sorts, then cuts out the page.
+
+**A page past the end is clamped to the last page**, and `page` in the response says which page was served.
+With no matches, it's page 1 with `items: []` and `total: 0`. Example: 40 customers, `pageSize=10`, `page=7` →
+page 4. This way a reload after the data shrinks (e.g. a reset while on a late page) still gets a full page, with
+no second request.
 
 ### `GET /api/customers/:id`
 

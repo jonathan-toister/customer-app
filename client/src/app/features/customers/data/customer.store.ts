@@ -2,12 +2,15 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { EMPTY, Subject, catchError, debounceTime, filter, firstValueFrom, map, switchMap, tap } from 'rxjs';
 import { CustomerApiService } from './customer-api.service';
-import { ApiError, Customer, CustomerInput, CustomerSort, DEFAULT_SORT } from './customer.model';
-
-interface ListParams {
-  q: string;
-  sort: CustomerSort;
-}
+import {
+  ApiError,
+  Customer,
+  CustomerInput,
+  CustomerListParams,
+  CustomerSort,
+  DEFAULT_PAGE_SIZE,
+  DEFAULT_SORT,
+} from './customer.model';
 
 const SEARCH_DEBOUNCE_MS = 300;
 
@@ -21,7 +24,13 @@ export class CustomerStore {
 
   // Writable state stays private. Components get read-only versions below.
   private readonly state = {
+    /** The customers on the current page only. */
     customers: signal<Customer[]>([]),
+    /** How many customers match the search, across all pages. */
+    total: signal(0),
+    /** Starts at 1, like the API. */
+    page: signal(1),
+    pageSize: signal(DEFAULT_PAGE_SIZE),
     loading: signal(false),
     error: signal<ApiError | null>(null),
     query: signal(''),
@@ -31,13 +40,17 @@ export class CustomerStore {
   };
 
   readonly customers = this.state.customers.asReadonly();
+  readonly total = this.state.total.asReadonly();
+  readonly page = this.state.page.asReadonly();
+  readonly pageSize = this.state.pageSize.asReadonly();
   readonly loading = this.state.loading.asReadonly();
   readonly error = this.state.error.asReadonly();
   /** Raw search text, updated on every keystroke (what the input shows). */
   readonly query = this.state.query.asReadonly();
   readonly sort = this.state.sort.asReadonly();
 
-  readonly isEmpty = computed(() => this.customers().length === 0);
+  /** Nothing matches at all (not just an empty page: the server never returns a page past the end). */
+  readonly isEmpty = computed(() => this.total() === 0);
   readonly hasQuery = computed(() => this.query().trim() !== '');
   /**
    * Loading before any list has arrived: the only time the page shows a full spinner.
@@ -46,9 +59,14 @@ export class CustomerStore {
   readonly initialLoad = computed(() => this.loading() && !this.state.hasLoaded());
 
   private readonly keystrokes$ = new Subject<string>();
-  private readonly requests$ = new Subject<ListParams>();
+  private readonly requests$ = new Subject<CustomerListParams>();
   private readonly settled$ = new Subject<void>();
-  private lastRequest: ListParams = { q: '', sort: DEFAULT_SORT };
+  private lastRequest: CustomerListParams = {
+    q: '',
+    sort: DEFAULT_SORT,
+    page: 1,
+    pageSize: DEFAULT_PAGE_SIZE,
+  };
 
   constructor() {
     this.keystrokes$
@@ -62,7 +80,7 @@ export class CustomerStore {
         filter((term) => term !== this.lastRequest.q),
         takeUntilDestroyed(),
       )
-      .subscribe(() => this.fetch());
+      .subscribe(() => this.fetchFirstPage());
 
     this.requests$
       .pipe(
@@ -71,10 +89,13 @@ export class CustomerStore {
           this.state.error.set(null);
         }),
         // A new request cancels the one still in flight, so a slow old response can't overwrite newer results.
-        switchMap(({ q, sort }) =>
-          this.api.list(q, sort).pipe(
-            tap((customers) => {
-              this.state.customers.set(customers);
+        switchMap((params) =>
+          this.api.list(params).pipe(
+            tap(({ items, total, page }) => {
+              this.state.customers.set(items);
+              this.state.total.set(total);
+              // From the response, not the request: a page past the end comes back as the last page.
+              this.state.page.set(page);
               this.state.hasLoaded.set(true);
               this.state.loading.set(false);
               this.settled$.next();
@@ -111,15 +132,23 @@ export class CustomerStore {
   /** Clearing is a single click, so it searches immediately instead of waiting for the debounce. */
   clearQuery(): void {
     this.setQuery('');
-    this.fetch();
+    this.fetchFirstPage();
   }
 
   /** Sort changes are single clicks too, so there's no debounce. */
   setSort(sort: CustomerSort): void {
     this.state.sort.set(sort);
+    this.fetchFirstPage();
+  }
+
+  /** From the paginator. A click, so no debounce either. */
+  setPage(page: number, pageSize: number): void {
+    this.state.page.set(page);
+    this.state.pageSize.set(pageSize);
     this.fetch();
   }
 
+  /** Same search, sort and page. Used by "Try again" and after a save. */
   reload(): void {
     this.fetch();
   }
@@ -162,11 +191,22 @@ export class CustomerStore {
     }
     this.state.sort.set(DEFAULT_SORT);
     this.setQuery('');
+    this.fetchFirstPage();
+  }
+
+  /** A new search or sort shows different customers, so page 3 of the old list means nothing: start at 1. */
+  private fetchFirstPage(): void {
+    this.state.page.set(1);
     this.fetch();
   }
 
   private fetch(): void {
-    this.lastRequest = { q: this.query().trim(), sort: this.sort() };
+    this.lastRequest = {
+      q: this.query().trim(),
+      sort: this.sort(),
+      page: this.page(),
+      pageSize: this.pageSize(),
+    };
     this.requests$.next(this.lastRequest);
   }
 }
