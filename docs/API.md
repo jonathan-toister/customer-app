@@ -70,6 +70,9 @@ Every non-2xx response:
 `fields` is present only for `VALIDATION_ERROR` and `EMAIL_TAKEN`, keyed by input field name,
 so the client can show messages next to the right form field.
 
+A request body that isn't valid JSON → `400 BAD_REQUEST`. Unknown `/api` routes → `404 NOT_FOUND`.
+Any unexpected server error → `500 INTERNAL`.
+
 ## Dev knobs (environment variables on the server)
 
 | Var | Default | Effect |

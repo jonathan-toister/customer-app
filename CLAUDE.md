@@ -41,7 +41,7 @@ npm run test          # client tests (and server tests if present)
 ```
 CLAUDE.md, README.md, package.json
 docs/       PLAN.md, API.md, DECISIONS.md, phases/
-server/src/ index.ts, customers.routes.ts, customers.store.ts, validation.ts, seed.ts
+server/src/ index.ts, customers.routes.ts, customers.store.ts, validation.ts, errors.ts, seed.ts
 client/src/app/
   app.config.ts, app.routes.ts, app.component.ts
   features/customers/

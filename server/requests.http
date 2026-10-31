@@ -1,0 +1,63 @@
+# Manual checks for the API. Run with the VS Code "REST Client" extension
+# (click "Send Request" above each block), or copy the line into curl.
+# Start the server first: npm --prefix server run dev
+
+@base = http://localhost:3000/api/customers
+@seedId = 00000000-0000-4000-8000-000000000001
+
+### List (default: createdAt desc)
+GET {{base}}
+
+### Search name or email, case-insensitive and trimmed
+GET {{base}}?q=%20ANN%20
+
+### Sort by name ascending
+GET {{base}}?sort=name&order=asc
+
+### Invalid sort -> 400 BAD_REQUEST
+GET {{base}}?sort=banana
+
+### Get one
+GET {{base}}/{{seedId}}
+
+### Get unknown -> 404 NOT_FOUND
+GET {{base}}/does-not-exist
+
+### Create -> 201
+POST {{base}}
+Content-Type: application/json
+
+{ "name": "Zed New", "email": "zed@new.test", "status": "pending" }
+
+### Create with invalid fields -> 400 VALIDATION_ERROR with fields
+POST {{base}}
+Content-Type: application/json
+
+{ "name": "Z", "email": "not-an-email", "status": "vip" }
+
+### Create with an existing email in another case -> 409 EMAIL_TAKEN
+POST {{base}}
+Content-Type: application/json
+
+{ "name": "Duplicate", "email": "ANN.TAYLOR@EXAMPLE.COM", "status": "active" }
+
+### Update keeping own email -> 200 (id and createdAt in the body are ignored)
+PUT {{base}}/{{seedId}}
+Content-Type: application/json
+
+{ "id": "ignored", "createdAt": "2000-01-01T00:00:00.000Z", "name": "Ann Taylor-Smith", "email": "ann.taylor@example.com", "status": "inactive" }
+
+### Update with another customer's email -> 409 EMAIL_TAKEN
+PUT {{base}}/{{seedId}}
+Content-Type: application/json
+
+{ "name": "Ann Taylor", "email": "anna.garcia@mail.test", "status": "active" }
+
+### Malformed JSON -> 400 BAD_REQUEST
+POST {{base}}
+Content-Type: application/json
+
+{ not json
+
+### Reset to seed data -> 204
+POST {{base}}/reset

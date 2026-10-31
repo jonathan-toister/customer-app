@@ -20,6 +20,13 @@ Phase 7 condenses this into the README.
 - **Dev proxy instead of CORS** — the client calls `/api`, the Angular dev server forwards to `:3000`.
 - **`Customer` type is duplicated** in client and server rather than shared via a workspace package — not worth the setup at this size (listed as a limitation).
 - **Reset endpoint** is a demo convenience, guarded in the UI by a confirmation dialog.
+- **Seed data is fully deterministic:** fixed name arrays, a fixed base date for `createdAt`, and stable UUID-shaped ids (`00000000-0000-4000-8000-000000000001`…). Every restart and reset gives identical data and ids, which keeps demos and manual checks repeatable. Customers created at runtime get `crypto.randomUUID()`.
+- **`reset()` uses `structuredClone` of the seed.** Without a copy, create/update would change the seed array itself and reset would restore the edited data.
+- **Server `list()` sorts the array returned by `filter()`**, never the store array. `Array.sort` sorts in place, so sorting the store directly would reorder stored data on every request.
+- **Small `server/src/errors.ts` (`sendError`)**, which isn't in the original folder list. Both the routes and `index.ts` (404 and error handler) produce the API error shape, so it lives in one place.
+- **Malformed JSON body → `400 BAD_REQUEST`, not `500 INTERNAL`.** The phase file's error handler would have reported a client mistake as a server error. Added to `API.md`.
+- **`PUT` checks 404 before validating the body**, so the most basic problem (wrong id) is reported first.
+- **TypeScript 7 (native compiler) on the server**, because that's what `npm install typescript` now installs. `tsx` runs the code, and `tsc --noEmit` (`npm --prefix server run typecheck`) only type-checks.
 - **Node version pinned:** `.nvmrc` (`24`, current Active LTS) and `"engines": { "node": ">=22" }` in the root `package.json`. Node 20 is end-of-life and current Angular needs a newer runtime; this tells a reviewer which Node to use before they hit a confusing install error.
 
 ## Deliberately not added
