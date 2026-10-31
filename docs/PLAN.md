@@ -15,7 +15,7 @@ backend. Prioritise working behaviour over polish. Stretch items are marked and 
 | 5 | States, responsive, a11y pass | `phases/05-states-responsive.md` | 30 min | [x] |
 | 6 | Modifications: tokens, own dialog/toast, pagination, skip empty searches | `phases/06-modifications.md` | 90–120 min | [x] |
 | 7 | Tests | `phases/07-tests.md` | 45–60 min | [x] |
-| 8 | README, decisions, final review | `phases/08-docs-and-review.md` | 20 min | [ ] |
+| 8 | README, decisions, final review | `phases/08-docs-and-review.md` | 20 min | [x] |
 
 ## Requirements traceability
 
@@ -29,7 +29,7 @@ backend. Prioritise working behaviour over polish. Stretch items are marked and 
 | Usable on desktop and small screens | Phase 3 (cards forced on mobile), Phase 5 (pass) |
 | "Search should feel responsive and not overload the API" | Phase 2 — debounce, distinctUntilChanged, switchMap; Phase 3 — keep results visible while searching; Phase 6 — skip searches that can't match, one page per request |
 | Reset customers (own addition) | Phase 1 endpoint, Phase 4 UI with confirmation |
-| README, architecture, AI note, limitations | Phase 8 |
+| README, architecture, AI note, limitations | Phase 8 — `README.md` (with screenshots) |
 
 ## Stretch (only if time remains)
 

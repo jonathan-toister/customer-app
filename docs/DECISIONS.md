@@ -1,7 +1,7 @@
 # Decisions
 
 Short log of architecture/technical choices. One or two lines each: the choice, and why.
-Phase 8 condenses this into the README.
+The README's "Architecture and technical choices" section is the short version of this file.
 
 ## Architecture
 

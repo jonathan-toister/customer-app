@@ -51,7 +51,7 @@ docs **in the same change**:
 | Client error behaviour | `docs/ERROR-HANDLING.md` |
 | Code that differs from a phase file | An "*As built:*" note in that phase file (keep the original text) + an entry in `docs/DECISIONS.md` |
 | A non-obvious choice or a new dependency | `docs/DECISIONS.md` (the dependency table for packages) |
-| A phase completed | Tick `docs/PLAN.md` + the README **Status** line |
+| A phase completed | Tick `docs/PLAN.md` |
 | Files a CLI or schematic generated (`ng new`, `ng add`, `ng generate`) | Review them. Delete or adapt any boilerplate docs. Never leave generic instructions (there is one README, at the root) |
 | The developer rejects or changes a suggestion | The AI log in `docs/DECISIONS.md` |
 

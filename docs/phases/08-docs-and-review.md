@@ -24,12 +24,25 @@ and "with more time" (6). It also removes the **Status** line and re-checks the 
    E2E tests, delete customer, persisted storage.
 
 ## Final review checklist
-- [ ] Fresh clone → `npm run install:all && npm run dev` works (test in a temp folder).
-- [ ] No `node_modules`, no secrets, no stray console logs or commented-out code.
-- [ ] Every row of the traceability table in `PLAN.md` is satisfied.
-- [ ] Lint/build passes: `ng build` without warnings worth mentioning.
+- [x] Fresh clone → `npm run install:all && npm run dev` works (test in a temp folder).
+- [x] No `node_modules`, no secrets, no stray console logs or commented-out code.
+- [x] Every row of the traceability table in `PLAN.md` is satisfied.
+- [x] Lint/build passes: `ng build` without warnings worth mentioning.
 - [ ] Developer can answer every "Be ready to explain" item from phases 1–7.
 - [ ] If submitting as ZIP: excludes `node_modules`, `dist`, `.angular`.
 
 ## Commit
 `docs: README, architecture notes, AI usage and limitations`
+
+*As built:*
+- The fresh-clone check ran **before** this phase, as its own step, from a clone of the published GitHub repo
+  (Node 24: install, dev, test, typecheck, build and the dev knobs). It found and fixed three things: the API port
+  variable is now `API_PORT` (the Angular dev server also reads `PORT`), the root `engines` range now matches
+  Angular's, and the CLI's `client/.vscode/launch.json` / `tasks.json` were removed. See `DECISIONS.md`.
+- Screenshots are in `docs/screenshots/` (desktop table, mobile cards), taken from the running app with the seed data.
+- The two server `console` calls are kept on purpose: the startup line, and logging unexpected errors in the
+  error handler.
+- The AI usage note was drafted by Claude Code from the AI log only. The developer added what Claude chat was
+  used for and kept the rest.
+- The README also got a short **Tests** section. Commits are in plain language and split in two, as in earlier phases.
+- The ZIP item doesn't apply: the project is submitted as a GitHub repo.
