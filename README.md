@@ -4,12 +4,13 @@ A small app for managing customers: list, search, sort, add, edit, and reset the
 The client is **Angular 22 with Angular Material**. It talks to a small **Express 5 + TypeScript** API that keeps
 customers in memory. Built as a home assignment for an Angular Front-End Developer role.
 
-**Status:** Phases 0–7 of 8 are done: the API, the client's data layer, the customers page (search, sort,
-pagination, table and card views), adding, editing and resetting customers, the loading, error, empty and
-no-results states with a responsive and accessibility pass, Phase 6's changes (design tokens, our own dialog
-and notification, pagination, skipping searches that can't match), and tests for the client and the server.
-README and final review come in Phase 8.
-Progress is tracked in [docs/PLAN.md](docs/PLAN.md).
+It was built in nine small phases, each with its own task list and acceptance criteria ([docs/PLAN.md](docs/PLAN.md)).
+
+<p>
+  <img src="docs/screenshots/desktop-table.png" alt="Desktop: the customer table with search, sort, view switcher and pagination" width="68%">
+  &nbsp;
+  <img src="docs/screenshots/mobile-cards.png" alt="Mobile: the same customers as cards" width="23%">
+</p>
 
 ## Prerequisites
 
@@ -77,11 +78,63 @@ SEED=empty npm run dev            # no customers, to see the "No customers yet" 
 
 These examples use macOS / Linux shell syntax. On Windows, run them in Git Bash or WSL.
 
+## Architecture and technical choices
+
+The short version. Every choice, with its reason, is in [docs/DECISIONS.md](docs/DECISIONS.md).
+
+- **Feature folders.** Everything about customers is in `features/customers/`. `shared/ui/` only holds parts that
+  know nothing about customers (dialog, toast, page states).
+- **Smart page, simple components.** Only `CustomersPage` and the add/edit dialog talk to the store. The toolbar,
+  table, cards and state components only take inputs and send outputs, so they're easy to reuse and test.
+- **One store service built on signals, no NgRx.** One feature with one kind of data doesn't need a state
+  library. The store exposes read-only signals and methods like `setQuery()`, `setSort()`, `create()`, `reset()`.
+  RxJS is used only where streams help: the search pipeline and HTTP.
+- **Data is there when the app starts.** `provideAppInitializer` waits for the first list. `load()` never
+  rejects: an error goes into the store's `error` signal, so a failing API shows an error with "Try again"
+  instead of a blank page.
+- **Search, sort and paging run on the server.** The API returns one page at a time, so the client couldn't
+  search or sort the other pages anyway.
+- **The add/edit dialog saves through the store itself**, so it can stay open and show a server error (like
+  "A customer with this email already exists") next to the right field.
+- **Our own dialog and toast design.** Dialogs are built on the Angular CDK `Dialog`, which handles focus,
+  Escape and screen-reader roles. Messages go through a small `NotificationService`. Spacing, radius and status
+  colours live in one file, `client/src/_tokens.scss`. Colours and type come from the Material theme.
+- **Errors are planned, not patched.** [docs/ERROR-HANDLING.md](docs/ERROR-HANDLING.md) lists every error case,
+  what the user sees, and which part of the app handles it.
+- **Angular 22 defaults kept:** no zone.js (zoneless), Vitest for tests, strict TypeScript. The dev proxy
+  forwards `/api` to the server, so there's no CORS setup.
+
+**Search.** The assignment asks for search that feels responsive and doesn't overload the API. In the store:
+
+1. The text is trimmed, then `debounceTime(300)` waits until typing pauses for 300ms.
+2. If the text is the same as the last request's, it's skipped. Sort and page clicks don't wait, since they're
+   single clicks.
+3. `switchMap` sends the request and cancels the previous one if it's still running, so an old, slow answer can
+   never replace a newer one.
+4. `catchError` sits **inside** the `switchMap`. If it were outside, the first failed request would end the
+   stream and search would stop working.
+5. While a search runs, the current results stay on screen with a thin progress bar instead of a spinner.
+6. If a search finds no one, longer text that contains it (for example "zz" → "zzz") is skipped without
+   calling the API, because it can only match fewer customers.
+
+Filtering in the browser would have been a fair choice while the API returned every customer. Once the list
+was paged, the client only holds one page, so searching on the server is the only correct option.
+
+## Tests
+
+`npm run test` runs both suites once. No testing libraries were added.
+
+- **Server (34 tests, Node's built-in `node:test`):** query parsing, validation rules, and the store's search,
+  sort, paging and reset.
+- **Client (59 tests, Vitest from the Angular CLI):** the store's search pipeline (with fake timers and
+  controlled responses), the API service's error mapping, the add/edit dialog's server errors, the confirm dialog,
+  notifications, the toolbar, and the page's states.
+
 ## Project structure
 
 ```
 ├── package.json            root scripts only (no workspaces)
-├── docs/                   plan, API contract, decisions, per-phase specs
+├── docs/                   plan, API contract, decisions, per-phase specs, screenshots/
 ├── server/
 │   ├── requests.http       manual API checks
 │   └── src/                index.ts (app setup), customers.routes.ts, customers.store.ts,
@@ -117,3 +170,51 @@ These examples use macOS / Linux shell syntax. On Windows, run them in Git Bash 
 | [docs/DECISIONS.md](docs/DECISIONS.md) | Technical choices and why, plus a log of AI suggestions that were changed or rejected |
 | [docs/phases/](docs/phases/) | Task list and acceptance criteria for each phase |
 | [CLAUDE.md](CLAUDE.md) | Conventions and workflow rules for working on this repo (also read by Claude Code) |
+
+## AI usage
+
+I used **Claude chat** for getting the general idea of what I want to develop (Whether I should create a small server, angular versions, clarifying angular updates since I was used to work with angular 18) and
+**Claude Code** to write the code, tests and docs, one phase at a time.
+
+How I kept control of it:
+
+- [CLAUDE.md](CLAUDE.md) sets the rules: the stack, Angular conventions, what not to add, and which docs to update
+  with each change.
+- Each phase in [docs/phases/](docs/phases/) has acceptance criteria. Claude Code stopped after every phase, and
+  I reviewed the changes and each commit before moving on.
+- When I changed or rejected a suggestion, it was logged in [docs/DECISIONS.md](docs/DECISIONS.md#ai-suggestions-changed-or-rejected).
+
+Suggestions I changed or rejected:
+
+- **Clickable table rows.** It suggested only an edit button. I wanted clickable rows, built them, and then
+  removed them: a row click only opened the same dialog as the button.
+- **Startup spinner.** It suggested not waiting for the first list, so the page could show its own spinner. I
+  kept the wait (customers are on screen at first render) and asked for a simple spinner in `index.html` instead.
+- **Search on the server.** I asked why search and sort call the API when the first call already returned
+  everyone. It suggested keeping them on the server and writing up the trade-off. I chose to add pagination,
+  which makes server-side search the only correct option.
+- **The search ✕ with only spaces.** It suggested leaving it. I had it fixed, so the ✕ only shows for real text.
+
+## Known limitations
+
+- Data lives in memory: restarting the server brings back the seed data.
+- The `Customer` type is written twice, once in the client and once in the server.
+- No auth. Anyone who can reach the API can call the reset endpoint (the UI asks for confirmation first).
+- Search, sort and page aren't in the URL, so a reload or a shared link starts from the default list.
+- No delete.
+- The HTTP routes are checked by hand with [`server/requests.http`](server/requests.http). The automated server
+  tests cover the logic behind them, not the routes.
+- A search that found no one is remembered. If a matching customer is added in another tab, longer searches
+  won't show them until a reload or a shorter search.
+- Skipped stretch items from the plan: a compact list view and URL-synced filters.
+
+## With more time
+
+- Keep search, sort and page in the URL.
+- Delete a customer.
+- Real storage (SQLite or Postgres) instead of memory.
+- One shared types package for the client and the server.
+- End-to-end tests (Playwright) and route tests for the API.
+- Optimistic updates, so a save shows at once instead of after the reload.
+- Virtual scrolling for very long pages.
+- Signal Forms for the add/edit form, now that they're stable in Angular 22.

@@ -59,7 +59,7 @@ docs **in the same change**:
 
 ```
 CLAUDE.md, README.md, package.json
-docs/       PLAN.md, API.md, ERROR-HANDLING.md, DECISIONS.md, phases/
+docs/       PLAN.md, API.md, ERROR-HANDLING.md, DECISIONS.md, phases/, screenshots/
 server/src/ index.ts, customers.routes.ts, customers.store.ts, validation.ts, errors.ts, seed.ts (+ *.test.ts)
 client/src/app/
   app.config.ts, app.routes.ts, app.ts (+ app.html, app.scss)
