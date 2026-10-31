@@ -3,7 +3,7 @@
   "private": true,
   "description": "Customer management app: Angular client + Express API",
   "engines": {
-    "node": ">=22"
+    "node": "^22.22.3 || ^24.15.0 || >=26.0.0"
   },
   "scripts": {
     "install:all": "npm install && npm --prefix server install && npm --prefix client install",
