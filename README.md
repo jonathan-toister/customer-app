@@ -67,13 +67,15 @@ Run from the repo root:
 | `API_DELAY_MS` | `400` | Adds delay to every API response |
 | `API_FAIL_RATE` | `0` | Chance (0–1) that a request fails with a `500` |
 | `SEED` | demo data | `SEED=empty` starts with no customers, to see the empty state. Reset keeps it empty |
-| `PORT` | `3000` | API port. The client proxy expects 3000 |
+| `API_PORT` | `3000` | API port. The client proxy expects 3000 |
 
 ```bash
 API_FAIL_RATE=0.3 npm run dev     # roughly 1 in 3 requests fails
 API_DELAY_MS=1500 npm run dev     # slow responses, to see loading states and cancelled searches
 SEED=empty npm run dev            # no customers, to see the "No customers yet" state
 ```
+
+These examples use macOS / Linux shell syntax. On Windows, run them in Git Bash or WSL.
 
 ## Project structure
 

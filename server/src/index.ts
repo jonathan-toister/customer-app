@@ -3,7 +3,8 @@ import { customersRouter } from './customers.routes.js';
 import { EMPTY_SEED } from './customers.store.js';
 import { sendError } from './errors.js';
 
-const PORT = Number(process.env.PORT ?? 3000);
+// Not PORT: the Angular dev server reads PORT too, so `PORT=3001 npm run dev` would move both apps.
+const PORT = Number(process.env.API_PORT ?? 3000);
 const API_DELAY_MS = Number(process.env.API_DELAY_MS ?? 400);
 const API_FAIL_RATE = Number(process.env.API_FAIL_RATE ?? 0);
 
