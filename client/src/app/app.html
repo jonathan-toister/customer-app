@@ -4,3 +4,5 @@
 <main>
   <router-outlet />
 </main>
+<!-- Rendered once here, so every notification in the app has the same look and place. -->
+<app-toast [notification]="notifications.current()" (dismiss)="notifications.dismiss()" />

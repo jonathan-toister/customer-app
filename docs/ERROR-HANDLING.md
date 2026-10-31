@@ -18,7 +18,7 @@ The error shape and codes are defined in `API.md`. If behaviour and this file di
 | `CustomerApiService` | The **only** place that sees `HttpErrorResponse`. `toApiError(err)`: if `err.error` has our shape (`{ error: { code, message } }`), return `err.error.error` unchanged. Otherwise (status 0, a proxy `5xx` with an HTML/empty body, anything else) return `{ code: 'UNKNOWN', message: "Can't reach the server. Please try again." }` |
 | `CustomerStore` | List errors go into the `error` signal and never throw. `load()` never rejects. `create` / `update` / `reset` **reject with `ApiError`**. A successful save **resolves even if the reload after it fails**, and that failure goes into `error`. On `NOT_FOUND` from `update`, the store calls `reload()` and then rejects. `dismissError()` clears `error` (the banner's close button); the next request clears it anyway |
 | `CustomerFormDialog` | Every save error (cases 2–7 below) |
-| `CustomersPage` | List errors (page states and banner), reset errors (snackbar), and the snackbar after the dialog closes |
+| `CustomersPage` | List errors (page states and banner), reset errors (error notification), and the notification after the dialog closes. Notifications go through `NotificationService` and appear as the shared `Toast` |
 
 `ApiError.code` is the server codes plus the client-only `'UNKNOWN'`.
 
@@ -30,13 +30,13 @@ The error shape and codes are defined in `API.md`. If behaviour and this file di
 | 2 | Server validation | `400 VALIDATION_ERROR` + `fields` | The server message under each matching field. Dialog stays open, form editable. The message clears as soon as that field is edited | Name `"   "` (spaces pass `required`) or email `a@b` (passes `Validators.email`, fails the server regex) |
 | 3 | Email taken | `409 EMAIL_TAKEN` + `fields.email` | "Email is already in use" under the email field | Email `ANN.TAYLOR@example.com` |
 | 4 | A `fields` key with no matching form control | `400` | `error.message` in the dialog's general error area | Only with a contract mismatch; covered by a unit test |
-| 5 | The customer being edited no longer exists | `404 NOT_FOUND` on `PUT` | Dialog closes → snackbar "This customer no longer exists" → list reloads | Create a customer, open its edit dialog, run `curl -X POST localhost:3000/api/customers/reset`, then Save. *(Seed ids survive a reset, so editing a seed customer won't 404)* |
-| 6 | Server error on save | `500 INTERNAL` / `SIMULATED_FAILURE` | `error.message` in the dialog's general error area. Values kept, Save works again | `API_FAIL_RATE=1` |
+| 5 | The customer being edited no longer exists | `404 NOT_FOUND` on `PUT` | Dialog closes → error notification "This customer no longer exists" → list reloads | Create a customer, open its edit dialog, run `curl -X POST localhost:3000/api/customers/reset`, then Save. *(Seed ids survive a reset, so editing a seed customer won't 404)* |
+| 6 | Server error on save | `500 INTERNAL` / `SIMULATED_FAILURE` | `error.message` in the dialog's general error area (an `ErrorBanner`). Values kept, Save works again | `API_FAIL_RATE=1` |
 | 7 | Server unreachable on save | status 0, or a non-JSON proxy `5xx` | "Can't reach the server. Please try again." in the dialog's general error area | Stop the server with the dialog open, then Save |
-| 8 | Save succeeded, refresh failed | `201`/`200`, then a list error | Dialog closes with the success snackbar. List keeps the old results and shows the error banner | `API_FAIL_RATE=0.5`, save until it happens |
+| 8 | Save succeeded, refresh failed | `201`/`200`, then a list error | Dialog closes with the success notification. List keeps the old results and shows the error banner | `API_FAIL_RATE=0.5`, save until it happens |
 | 9 | First load fails, or any list error with nothing on screen | any | Full-page `ErrorState` with "Try again" | Stop the server, refresh the page |
 | 10 | Search / sort / reload fails while results are showing | any | Old results stay, plus an error banner with "Try again" and a close button (`store.dismissError()`). Typing again still searches | `API_FAIL_RATE=0.5`, then type in search |
-| 11 | Reset fails | any | Snackbar with `error.message`; the list is unchanged | `API_FAIL_RATE=1`, then Reset |
+| 11 | Reset fails | any | Error notification with `error.message`; the list is unchanged | `API_FAIL_RATE=1`, then Reset |
 | — | Invalid `sort` / `order` | `400 BAD_REQUEST` | Can't happen from the UI (sort values are typed). If it did, handled like 9 / 10 | — |
 
 ## Dialog: applying a server error (order matters)

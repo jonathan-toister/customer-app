@@ -1,10 +1,5 @@
-mat-dialog-content {
+.fields {
   display: flex;
   flex-direction: column;
   gap: var(--app-space-xs);
-}
-
-// The dialog content scrolls on its own, so the fields need some room from the top edge.
-mat-form-field:first-child {
-  margin-top: var(--app-space-sm);
 }

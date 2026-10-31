@@ -23,7 +23,7 @@ Phase 8 condenses this into the README.
 - **Client error handling is specified in `ERROR-HANDLING.md`** (every error case → what the user sees → which layer handles it), agreed before building the client. Key choices:
   - **Show the server's text.** `fields` messages and `message` are shown as they are. The client's own text, under the code `UNKNOWN`, is only for responses that aren't our error shape (server down, proxy error). The rules and their wording live in one place, the server.
   - **Map by body shape, not status code.** Behind the dev proxy, a stopped server usually comes back as a non-JSON `5xx`, not status 0.
-  - **404 when saving an edit** (the customer was removed, e.g. by a reset in another tab) closes the dialog, shows "This customer no longer exists" and reloads. Keeping the dialog open would be a dead end.
+  - **404 when saving an edit** (the customer was removed, e.g. by a reset in another tab) closes the dialog, shows "This customer no longer exists" (as an error notification) and reloads. Keeping the dialog open would be a dead end.
   - **A save resolves once the save succeeds**, even if the list refresh after it fails. The refresh failure appears as the list's error banner, not as a dialog error. The data *was* saved.
   - **Client validation deliberately isn't a perfect copy of the server's** (a whitespace-only name, `a@b`). The server is the source of truth, and those cases show its field errors reaching the right control.
 - **Angular CLI defaults kept (Angular 22.2):** Vitest test runner, **zoneless** change detection (no zone.js), strict TypeScript (6.0 in the client), Material 3 theme (azure/blue, Roboto). Angular 22 makes `OnPush` the default, but components still set it explicitly (CLAUDE.md), so the intent is visible.
@@ -56,7 +56,7 @@ Phase 8 condenses this into the README.
 - **Reactive Forms, not Signal Forms.** Signal Forms (`form()` from `@angular/forms/signals`) became stable API in Angular 22. Reactive Forms were kept because the server-error steps in `ERROR-HANDLING.md` are written for them (`setErrors`, `enable()` before `setErrors`), they work well with `mat-form-field` / `mat-error`, and they're widely known. Signal Forms would fit the signals-everywhere style and are a reasonable next step. *Developer's choice when asked.*
 - **The form dialog reads `getRawValue()` before `form.disable()`.** Disabled controls are left out of `form.value`, so reading after disabling would send an empty object.
 - **One request per save is guaranteed by a `saving()` check at the top of `submit()`**, not only by `[disabled]` on the button. Enter in a field submits the form too, and the guard covers every path.
-- **Cancel is disabled while saving** (as well as backdrop and Escape, via `dialogRef.disableClose`). Closing mid-save would not stop the request: the customer would be saved with no snackbar.
+- **Cancel is disabled while saving** (as well as backdrop and Escape, via `dialogRef.disableClose`). Closing mid-save would not stop the request: the customer would be saved with no notification.
 - **The page picks "Customer added" or "Customer updated"** from whether it passed a customer to the dialog, so the dialog's result stays `{ kind: 'saved'; customer }` as specified.
 - **`ConfirmDialog` is generic** (`title`, `message`, `confirmLabel`) and closes with `true` / `false`. Backdrop or Escape gives `undefined`, so the caller checks `=== true`. Cancel comes first, so it gets the initial focus and Enter alone never confirms a reset.
 - **Reset shows the progress bar from the moment it's confirmed.** The store sets `loading` before the reset request (and clears it if that fails), rather than only during the reload after it. Otherwise there's ~400ms with no feedback. *Developer's choice when asked.*
@@ -71,6 +71,10 @@ Phase 8 condenses this into the README.
 
 - **Design values live in one file, `client/src/_tokens.scss`** (Phase 6): CSS custom properties for spacing, corner radius, the floating shadow, status colours, content width and the state icon size. Colours and type were already in one place, the Material theme (`--mat-sys-*`); the tokens only add what the theme doesn't have. CSS variables, not Sass variables, so they can be inspected and changed live in DevTools. Sizes that belong to one component (a table column's width, the search field's flex basis) stay in that component.
 
+- **Our own dialog design on the CDK `Dialog`, not `MatDialog`** (Phase 6). Every dialog uses `DialogShell` (heading, content, actions) and opens through `AppDialog`, so the look and the settings live in one place each. The CDK `Dialog` has no styles, but it does the parts that are easy to get wrong by hand: focus trap, Escape and backdrop closing (blocked by `disableClose`), focus back to the opener, `role="dialog"` and `aria-modal`. A hand-made overlay or a native `<dialog>` would mean rebuilding those. `AppDialog` gives each dialog an id, and `DialogShell` names its heading `<id>-heading`, which is passed as `ariaLabelledBy`. That uses public config only, not the CDK's private `_addAriaLabelledBy`. `DialogShell` injects the CDK `DialogRef` (a framework service, not app state) to read that id.
+- **Notifications are our own `Toast`, fed by a small `NotificationService`, not `MatSnackBar`** (Phase 6). One message at a time, 4s, `success` or `error`; `App` renders the toast once. It isn't the "global error service" CLAUDE.md rules out: it catches nothing and decides nothing, it only displays what a caller passes. The toast element is always in the page (`role="status"`), because screen readers don't announce a live region that's inserted with its text already set. "This customer no longer exists" is an `error` notification, since the edit wasn't saved. The page calls the service directly; its old `notify()` helper became a pass-through and was removed.
+- **Focus after saving an edit goes to the page, not the edit button.** The list reload re-creates the table rows, so the button that opened the dialog no longer exists. This was the same with `MatDialog`; after Escape or Cancel, focus does return to the button.
+
 ## Deliberately not added
 
 NgRx, HTTP interceptors, global error handler service, shared types package, auth, URL-synced filters (stretch).
@@ -82,7 +86,7 @@ Pagination was on this list until Phase 6, when the developer chose to add it (s
 |---|---|---|
 | express, tsx, typescript | server | API |
 | concurrently | root | run both apps with one command |
-| @angular/material, @angular/cdk | client | table, dialog, form fields, snackbar (added via `ng add`) |
+| @angular/material, @angular/cdk | client | table, form fields, buttons (Material); the CDK `Dialog` under our own dialog design (added via `ng add`) |
 
 ## AI suggestions changed or rejected
 

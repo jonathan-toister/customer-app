@@ -1,17 +1,11 @@
+import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
-import {
-  MAT_DIALOG_DATA,
-  MatDialogActions,
-  MatDialogClose,
-  MatDialogContent,
-  MatDialogRef,
-  MatDialogTitle,
-} from '@angular/material/dialog';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { MatOption, MatSelect } from '@angular/material/select';
+import { DialogShell } from '../../../../shared/ui/dialog-shell/dialog-shell';
 import { ErrorBanner } from '../../../../shared/ui/error-banner/error-banner';
 import { ApiError, Customer, CustomerInput, CustomerStatus } from '../../data/customer.model';
 import { CustomerStore } from '../../data/customer.store';
@@ -40,16 +34,13 @@ const STATUSES: { value: CustomerStatus; label: string }[] = [
   imports: [
     ReactiveFormsModule,
     MatButton,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    MatDialogClose,
     MatFormField,
     MatLabel,
     MatError,
     MatInput,
     MatSelect,
     MatOption,
+    DialogShell,
     ErrorBanner,
   ],
   templateUrl: './customer-form-dialog.html',
@@ -57,9 +48,9 @@ const STATUSES: { value: CustomerStatus; label: string }[] = [
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CustomerFormDialog {
-  private readonly data = inject<CustomerFormDialogData>(MAT_DIALOG_DATA);
-  private readonly dialogRef =
-    inject<MatDialogRef<CustomerFormDialog, CustomerFormDialogResult>>(MatDialogRef);
+  private readonly data = inject<CustomerFormDialogData>(DIALOG_DATA);
+  protected readonly dialogRef =
+    inject<DialogRef<CustomerFormDialogResult, CustomerFormDialog>>(DialogRef);
   private readonly store = inject(CustomerStore);
 
   protected readonly isEdit = this.data.customer !== undefined;
@@ -139,7 +130,7 @@ export class CustomerFormDialog {
 
   private setSaving(saving: boolean): void {
     this.saving.set(saving);
-    // No closing by backdrop or Escape mid-save: the save would still happen, with no snackbar after it.
+    // No closing by backdrop or Escape mid-save: the save would still happen, with no notification after it.
     this.dialogRef.disableClose = saving;
     if (saving) {
       this.form.disable();

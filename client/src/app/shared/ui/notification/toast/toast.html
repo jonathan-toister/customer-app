@@ -1,0 +1,9 @@
+@if (notification(); as notification) {
+  <div class="toast toast--{{ notification.kind }}">
+    <mat-icon aria-hidden="true">{{ notification.kind === 'error' ? 'error' : 'check_circle' }}</mat-icon>
+    <span class="message">{{ notification.message }}</span>
+    <button matIconButton type="button" aria-label="Dismiss notification" (click)="dismiss.emit()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+}

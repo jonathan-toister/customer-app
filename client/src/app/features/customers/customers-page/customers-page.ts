@@ -2,15 +2,15 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { map } from 'rxjs';
 import { ConfirmDialog, ConfirmDialogData } from '../../../shared/ui/confirm-dialog/confirm-dialog';
+import { AppDialog } from '../../../shared/ui/dialog-shell/app-dialog.service';
 import { EmptyState } from '../../../shared/ui/empty-state/empty-state';
 import { ErrorBanner } from '../../../shared/ui/error-banner/error-banner';
 import { ErrorState } from '../../../shared/ui/error-state/error-state';
 import { LoadingState } from '../../../shared/ui/loading-state/loading-state';
+import { NotificationService } from '../../../shared/ui/notification/notification.service';
 import { CustomerCards } from '../components/customer-cards/customer-cards';
 import {
   CustomerFormDialog,
@@ -23,7 +23,6 @@ import { ApiError, Customer } from '../data/customer.model';
 import { CustomerStore } from '../data/customer.store';
 
 const VIEW_STORAGE_KEY = 'customers.view';
-const SNACKBAR_DURATION_MS = 4000;
 
 /** The customers screen: connects the store to the toolbar, the views and the dialogs. */
 @Component({
@@ -47,8 +46,8 @@ const SNACKBAR_DURATION_MS = 4000;
 export class CustomersPage {
   protected readonly store = inject(CustomerStore);
   private readonly breakpointObserver = inject(BreakpointObserver);
-  private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly dialog = inject(AppDialog);
+  private readonly notifications = inject(NotificationService);
 
   // Width only (under 600px), so a phone counts as mobile whichever way it's held.
   protected readonly isMobile = toSignal(
@@ -94,14 +93,14 @@ export class CustomersPage {
       CustomerFormDialog,
       CustomerFormDialogData,
       CustomerFormDialogResult
-    >(CustomerFormDialog, { data: { customer }, width: '480px', maxWidth: '95vw' });
+    >(CustomerFormDialog, { customer }, '480px');
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.closed.subscribe((result) => {
       if (result?.kind === 'saved') {
-        this.notify(customer ? 'Customer updated' : 'Customer added');
+        this.notifications.show(customer ? 'Customer updated' : 'Customer added');
       } else if (result?.kind === 'not-found') {
         // The store has already reloaded the list, so the missing customer is gone from it.
-        this.notify('This customer no longer exists');
+        this.notifications.show('This customer no longer exists', 'error');
       }
     });
   }
@@ -109,13 +108,11 @@ export class CustomersPage {
   protected confirmReset(): void {
     this.dialog
       .open<ConfirmDialog, ConfirmDialogData, boolean>(ConfirmDialog, {
-        data: {
-          title: 'Reset all customers?',
-          message: 'This replaces every change with the original demo data.',
-          confirmLabel: 'Reset',
-        },
+        title: 'Reset all customers?',
+        message: 'This replaces every change with the original demo data.',
+        confirmLabel: 'Reset',
       })
-      .afterClosed()
+      .closed
       .subscribe((confirmed) => {
         if (confirmed === true) {
           this.reset();
@@ -126,14 +123,10 @@ export class CustomersPage {
   private async reset(): Promise<void> {
     try {
       await this.store.reset();
-      this.notify('Demo data restored');
+      this.notifications.show('Demo data restored');
     } catch (error) {
-      this.notify((error as ApiError).message);
+      this.notifications.show((error as ApiError).message, 'error');
     }
-  }
-
-  private notify(message: string): void {
-    this.snackBar.open(message, 'Dismiss', { duration: SNACKBAR_DURATION_MS });
   }
 }
 

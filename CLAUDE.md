@@ -68,7 +68,8 @@ client/src/app/
     customers-page/
     components/    customer-toolbar/, customer-table/, customer-cards/, customer-status-badge/,
                    customer-form-dialog/
-  shared/ui/       loading-state/, error-state/, empty-state/, error-banner/, confirm-dialog/
+  shared/ui/       loading-state/, error-state/, empty-state/, error-banner/, confirm-dialog/,
+                   dialog-shell/ (DialogShell + AppDialog), notification/ (NotificationService + toast/)
 client/src/        styles.scss (Material theme), _tokens.scss (spacing, radius, status colours)
 ```
 
@@ -86,6 +87,8 @@ Node 24 (see `.nvmrc`). Run `nvm use` before any npm command; Angular 22 doesn't
   genuinely help (the search pipeline, HTTP).
 - Built-in control flow (`@if`, `@for` with `track`, `@switch`). No `*ngIf` / `*ngFor`.
 - Presentational components (toolbar, table, cards, shared/ui) inject **nothing** from the app — inputs in, outputs out.
+- Dialogs open through `AppDialog` and use `DialogShell`; messages go through `NotificationService`. Don't use
+  `MatDialog`, `MatSnackBar`, or the browser's `alert` / `confirm`.
 - Only `CustomersPage` and `CustomerFormDialog` talk to `CustomerStore`. Only `CustomerStore` talks to `CustomerApiService`.
 - No `any`. Types for the API live in `customer.model.ts`.
 - Keep files small. If the page component passes ~150 lines, logic has leaked into it.

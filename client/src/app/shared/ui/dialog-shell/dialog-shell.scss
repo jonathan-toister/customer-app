@@ -1,0 +1,31 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  // A tall form on a short screen scrolls inside .content; the heading and buttons stay visible.
+  max-height: calc(100vh - 2 * var(--app-space-xl));
+  box-sizing: border-box;
+  padding: var(--app-space-xl);
+  border-radius: var(--app-radius-lg);
+  background: var(--mat-sys-surface-container-high);
+  color: var(--mat-sys-on-surface);
+  box-shadow: var(--app-shadow-floating);
+}
+
+.heading {
+  margin: 0 0 var(--app-space-lg);
+  font: var(--mat-sys-headline-small);
+}
+
+.content {
+  overflow-y: auto;
+  // Room for a form field's floating label, which sits above the field's top edge.
+  padding-block: var(--app-space-sm);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--app-space-sm);
+  margin-top: var(--app-space-lg);
+}

@@ -1,0 +1,48 @@
+:host {
+  position: fixed;
+  inset-inline: 0;
+  bottom: var(--app-space-xl);
+  // Above dialogs and their backdrop (the CDK overlay container uses z-index 1000).
+  z-index: 1100;
+  display: flex;
+  justify-content: center;
+  padding-inline: var(--app-space-lg);
+  // The full-width host mustn't block clicks on the page; only the toast itself is clickable.
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-md);
+  width: 100%;
+  max-width: 480px;
+  box-sizing: border-box;
+  padding: var(--app-space-xs) var(--app-space-xs) var(--app-space-xs) var(--app-space-lg);
+  border-radius: var(--app-radius-md);
+  box-shadow: var(--app-shadow-floating);
+  pointer-events: auto;
+}
+
+.toast--success {
+  background: var(--mat-sys-inverse-surface);
+  color: var(--mat-sys-inverse-on-surface);
+
+  mat-icon:first-child {
+    color: var(--mat-sys-inverse-primary);
+  }
+}
+
+.toast--error {
+  background: var(--mat-sys-error);
+  color: var(--mat-sys-on-error);
+}
+
+.message {
+  flex: 1;
+}
+
+// The close button takes the toast's text colour, which Material's default wouldn't.
+button {
+  color: inherit;
+}

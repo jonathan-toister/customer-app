@@ -96,7 +96,9 @@ SEED=empty npm run dev            # no customers, to see the "No customers yet" 
             │                         customer-status-badge/ (inputs in, outputs out),
             │                         customer-form-dialog/ (add/edit; saves through the store)
             └── shared/ui/            no customer knowledge, inputs in, outputs out
+                ├── dialog-shell/     the look of every dialog + AppDialog, which opens them (CDK Dialog)
                 ├── confirm-dialog/   generic yes/no dialog
+                ├── notification/     NotificationService + the toast that shows its messages
                 ├── error-banner/     red inline error box (list banner, dialog error)
                 └── loading-state/, error-state/, empty-state/   full-area page states
 ```
