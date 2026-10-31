@@ -33,7 +33,7 @@ interview. Readability and explainability beat cleverness everywhere.
 ```bash
 npm run install:all   # installs root, server and client deps
 npm run dev           # server on :3000 + client on :4200
-npm run test          # client tests (and server tests if present)
+npm run test          # client tests, run once (not watch mode); add server tests here if they're written
 ```
 
 ## Folder structure (target state)
