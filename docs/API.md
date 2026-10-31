@@ -80,5 +80,6 @@ Any unexpected server error → `500 INTERNAL`.
 | `PORT` | `3000` | |
 | `API_DELAY_MS` | `400` | Artificial latency on every `/api` request — makes loading states and request cancellation visible |
 | `API_FAIL_RATE` | `0` | 0–1 probability that a request fails with `500 SIMULATED_FAILURE` — used to demo the error/retry UI |
+| `SEED` | (demo data) | `SEED=empty` starts with no customers, to demo the empty state. Reset also restores the empty list |
 
 Example: `API_FAIL_RATE=0.3 npm run dev`.

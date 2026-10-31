@@ -13,10 +13,13 @@ export interface ListQuery {
   order: SortOrder;
 }
 
+/** Dev knob: `SEED=empty` starts (and resets) with no customers, to show the client's empty state. */
+export const EMPTY_SEED = process.env.SEED === 'empty';
+
 // A deep copy, not the seed array itself. Otherwise create/update would change
 // SEED_CUSTOMERS, and reset() would "restore" the edited data.
 function freshSeed(): Customer[] {
-  return structuredClone(SEED_CUSTOMERS);
+  return EMPTY_SEED ? [] : structuredClone(SEED_CUSTOMERS);
 }
 
 let customers: Customer[] = freshSeed();

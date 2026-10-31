@@ -1,5 +1,6 @@
 import express, { type ErrorRequestHandler, type RequestHandler } from 'express';
 import { customersRouter } from './customers.routes.js';
+import { EMPTY_SEED } from './customers.store.js';
 import { sendError } from './errors.js';
 
 const PORT = Number(process.env.PORT ?? 3000);
@@ -43,5 +44,6 @@ app.use('/api', unknownApiRoute);
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log(`API on http://localhost:${PORT} (delay ${API_DELAY_MS}ms, fail rate ${API_FAIL_RATE})`);
+  const seed = EMPTY_SEED ? 'empty' : 'demo';
+  console.log(`API on http://localhost:${PORT} (delay ${API_DELAY_MS}ms, fail rate ${API_FAIL_RATE}, seed ${seed})`);
 });
