@@ -1,0 +1,16 @@
+{
+  "name": "customer-management-app",
+  "private": true,
+  "description": "Customer management app: Angular client + Express API",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "install:all": "npm install && npm --prefix server install && npm --prefix client install",
+    "dev": "concurrently -n server,client -c blue,magenta \"npm --prefix server run dev\" \"npm --prefix client start\"",
+    "test": "npm --prefix client test"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.5"
+  }
+}
