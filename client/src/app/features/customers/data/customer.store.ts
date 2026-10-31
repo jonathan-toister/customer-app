@@ -61,6 +61,12 @@ export class CustomerStore {
   private readonly keystrokes$ = new Subject<string>();
   private readonly requests$ = new Subject<CustomerListParams>();
   private readonly settled$ = new Subject<void>();
+  /**
+   * The last search text that found no one, lower-cased. The server matches a case-insensitive substring of
+   * name or email, so any text that *contains* this one can't match anyone either: "zz" found nothing, so
+   * "zzz" and "xzz" won't. Forgotten on reload and reset, because the data may have changed.
+   */
+  private emptyResultTerm: string | null = null;
   private lastRequest: CustomerListParams = {
     q: '',
     sort: DEFAULT_SORT,
@@ -78,6 +84,9 @@ export class CustomerStore {
         // Skip when the term equals what was last requested. This works like distinctUntilChanged,
         // but compares against the last *request*, which clear, reset and sort changes also update.
         filter((term) => term !== this.lastRequest.q),
+        // Skip a search that can't have results. The no-results state already shows the new text,
+        // because it reads `query`, so there's nothing to update.
+        filter((term) => !this.cannotMatch(term)),
         takeUntilDestroyed(),
       )
       .subscribe(() => this.fetchFirstPage());
@@ -92,6 +101,9 @@ export class CustomerStore {
         switchMap((params) =>
           this.api.list(params).pipe(
             tap(({ items, total, page }) => {
+              if (total === 0) {
+                this.emptyResultTerm = params.q.toLowerCase();
+              }
               this.state.customers.set(items);
               this.state.total.set(total);
               // From the response, not the request: a page past the end comes back as the last page.
@@ -150,6 +162,7 @@ export class CustomerStore {
 
   /** Same search, sort and page. Used by "Try again" and after a save. */
   reload(): void {
+    this.emptyResultTerm = null;
     this.fetch();
   }
 
@@ -189,9 +202,14 @@ export class CustomerStore {
       this.state.loading.set(false);
       throw error;
     }
+    this.emptyResultTerm = null;
     this.state.sort.set(DEFAULT_SORT);
     this.setQuery('');
     this.fetchFirstPage();
+  }
+
+  private cannotMatch(term: string): boolean {
+    return this.emptyResultTerm !== null && term.toLowerCase().includes(this.emptyResultTerm);
   }
 
   /** A new search or sort shows different customers, so page 3 of the old list means nothing: start at 1. */

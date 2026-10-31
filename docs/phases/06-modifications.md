@@ -60,3 +60,16 @@ can't match.
 2. `Use our own dialog and notification design`
 3. `Add pagination to the customer list`
 4. `Skip searches that can't have results`
+
+*As built:*
+- **The error banner always shows its icon**, in the dialog too (the dialog's old error box had none), so the two
+  really are one design.
+- **"This customer no longer exists" is an `error` notification** (red), because the edit wasn't saved.
+- **The state icon size became a token too** (`--app-state-icon-size`), since the empty and error states share it.
+  Sizes used by one component only (column widths, flex bases) stay in that component.
+- **After saving an edit, focus goes to the page, not the edit button**: the reload re-creates the table rows. The same
+  was true with `MatDialog`. Escape and Cancel do return focus to the button.
+- **Page size is kept on reset**; page, search and sort go back to their defaults.
+- **The "can't match" rule also covers an empty list**: if `''` found no one, typing doesn't call the API until a
+  reload or reset. It's the same rule (every text contains `''`), so it needs no extra code.
+- **Only typing is skipped.** Sort and page clicks always call the API.

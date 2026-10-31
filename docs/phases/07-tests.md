@@ -17,7 +17,7 @@ not every component. Use the test runner the Angular CLI scaffolded.
      a reload after a save stays on the current page.
    - **Skipping searches that can't match (Phase 6):** after "zz" returns `total: 0`, `setQuery('zzz')` and
      `setQuery('xzz')` make **no** call; `setQuery('z')` does; after `reload()`, `create()` or `reset()`,
-     `setQuery('zzz')` calls the API again.
+     `setQuery('zzz')` calls the API again; sort and page changes are never skipped.
 2. **`toApiError`** (in `customer-api.service.ts`) — see `docs/ERROR-HANDLING.md`:
    - A response body with our error shape is returned unchanged (code, message, fields).
    - Status 0, and a `5xx` with an HTML or empty body, both become `{ code: 'UNKNOWN', … }`.
