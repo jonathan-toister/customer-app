@@ -1,0 +1,7 @@
+<mat-icon class="icon">error</mat-icon>
+<h2>{{ heading() }}</h2>
+<p>{{ message() }}</p>
+<button matButton="outlined" type="button" (click)="retry.emit()">
+  <mat-icon>refresh</mat-icon>
+  Try again
+</button>

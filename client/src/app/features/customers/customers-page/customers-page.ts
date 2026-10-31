@@ -1,11 +1,15 @@
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MatButton } from '@angular/material/button';
+import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatIcon } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { map } from 'rxjs';
 import { ConfirmDialog, ConfirmDialogData } from '../../../shared/ui/confirm-dialog/confirm-dialog';
+import { EmptyState } from '../../../shared/ui/empty-state/empty-state';
+import { ErrorState } from '../../../shared/ui/error-state/error-state';
+import { LoadingState } from '../../../shared/ui/loading-state/loading-state';
 import { CustomerCards } from '../components/customer-cards/customer-cards';
 import {
   CustomerFormDialog,
@@ -23,7 +27,17 @@ const SNACKBAR_DURATION_MS = 4000;
 /** The customers screen: connects the store to the toolbar, the views and the dialogs. */
 @Component({
   selector: 'app-customers-page',
-  imports: [CustomerToolbar, CustomerTable, CustomerCards, MatButton],
+  imports: [
+    CustomerToolbar,
+    CustomerTable,
+    CustomerCards,
+    LoadingState,
+    ErrorState,
+    EmptyState,
+    MatButton,
+    MatIconButton,
+    MatIcon,
+  ],
   templateUrl: './customers-page.html',
   styleUrl: './customers-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,6 +63,15 @@ export class CustomersPage {
   /** A request is running with results already on screen: show the thin bar, not a full spinner. */
   protected readonly busy = computed(() => this.store.loading() && !this.store.initialLoad());
 
+  /** "12 customers" under the toolbar. Blank while there's no list to count (first load, full-page error). */
+  protected readonly resultCountLabel = computed(() => {
+    if (this.store.initialLoad() || (this.store.error() && this.store.isEmpty())) {
+      return '';
+    }
+    const count = this.store.customers().length;
+    return count === 1 ? '1 customer' : `${count} customers`;
+  });
+
   protected onViewChange(view: CustomerView): void {
     this.selectedView.set(view);
     saveView(view);
@@ -69,7 +92,7 @@ export class CustomersPage {
       CustomerFormDialog,
       CustomerFormDialogData,
       CustomerFormDialogResult
-    >(CustomerFormDialog, { data: { customer }, width: '480px' });
+    >(CustomerFormDialog, { data: { customer }, width: '480px', maxWidth: '95vw' });
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result?.kind === 'saved') {

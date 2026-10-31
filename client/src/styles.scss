@@ -17,6 +17,8 @@ html {
       density: 0,
     )
   );
+  // A clear outline on keyboard focus. Material's default focus is only a faint tint, easy to miss.
+  @include mat.strong-focus-indicators();
 }
 
 body {

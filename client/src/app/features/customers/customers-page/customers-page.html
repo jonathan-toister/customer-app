@@ -12,23 +12,49 @@
   (reset)="confirmReset()"
 />
 
-<!-- Temporary plain-text states; phase 5 replaces them with the shared state components. -->
+<!-- Always in the page, so screen readers announce each new count. Hidden on screen when the
+     list is empty, because the empty state already says so. -->
+<p class="result-count" aria-live="polite" [class.visually-hidden]="store.isEmpty()">
+  {{ resultCountLabel() }}
+</p>
+
 @if (store.initialLoad()) {
-  <p class="state">Loading customers…</p>
+  <app-loading-state label="Loading customers…" />
 } @else if (store.error() && store.isEmpty()) {
-  <div class="state">
-    <p>{{ store.error()?.message }}</p>
-    <button matButton="outlined" type="button" (click)="store.reload()">Try again</button>
-  </div>
+  <app-error-state
+    heading="Couldn't load customers"
+    [message]="store.error()!.message"
+    (retry)="store.reload()"
+  />
+} @else if (store.isEmpty() && store.hasQuery()) {
+  <app-empty-state
+    icon="search_off"
+    heading="No customers match “{{ store.query().trim() }}”"
+    message="Check the spelling, or search by email."
+    actionLabel="Clear search"
+    (action)="store.clearQuery()"
+  />
 } @else if (store.isEmpty()) {
-  <p class="state">
-    @if (store.hasQuery()) {
-      No customers match “{{ store.query().trim() }}”
-    } @else {
-      No customers yet
-    }
-  </p>
+  <app-empty-state
+    icon="group"
+    heading="No customers yet"
+    message="Add your first customer, or restore the demo data from the ⋮ menu."
+    actionLabel="Add customer"
+    (action)="openAdd()"
+  />
 } @else {
+  <!-- The list is still there, so a failed refresh gets a banner instead of replacing it. -->
+  @if (store.error(); as error) {
+    <div class="error-banner" role="alert">
+      <mat-icon>error</mat-icon>
+      <span class="error-message">{{ error.message }}</span>
+      <button matButton type="button" (click)="store.reload()">Try again</button>
+      <button matIconButton type="button" aria-label="Dismiss error" (click)="store.dismissError()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  }
+
   @switch (activeView()) {
     @case ('table') {
       <app-customer-table
