@@ -16,9 +16,12 @@ No real UI yet — a temporary `<pre>` dump of the store state is enough to veri
    `**` → redirect to `customers`. (Create an empty `CustomersPage` placeholder for now.)
 6. `features/customers/data/customer.model.ts` — types from `API.md` plus:
    `SortField`, `SortOrder`, `CustomerSort { field; order }`, `ApiError { code; message; fields? }`.
+   `ApiError['code']` is the server codes plus the client-only `'UNKNOWN'` (see `docs/ERROR-HANDLING.md`).
 7. `customer-api.service.ts` — `list(q, sort)`, `create(input)`, `update(id, input)`, `reset()`.
-   Builds `HttpParams`, omits empty `q`. Maps `HttpErrorResponse` → `ApiError` (fallback message for network errors,
-   status 0). No state, no retries.
+   Builds `HttpParams`, omits empty `q`. No state, no retries.
+   Every method maps errors with `toApiError(err: HttpErrorResponse)`: if `err.error` has our error shape, return
+   `err.error.error` unchanged. Otherwise return `{ code: 'UNKNOWN', message: "Can't reach the server. Please try again." }`.
+   Don't check only for status 0: behind the dev proxy, a stopped server usually shows up as a `5xx` with an HTML/empty body.
 8. `customer.store.ts` (`providedIn: 'root'`):
    - **State signals** (private writable, public read-only via `.asReadonly()`):
      `customers`, `loading`, `error: ApiError | null`, `query` (raw text, updates on every keystroke),
@@ -40,13 +43,17 @@ No real UI yet — a temporary `<pre>` dump of the store state is enough to veri
    - **Actions:** `setQuery(text)`, `setSort(sort)`, `reload()`, `clearQuery()`,
      `load(): Promise<void>` — triggers the first fetch and resolves when it settles (success *or* error). **Never rejects.**
      `create(input)` / `update(id, input)` — return a `Promise<Customer>` that **rejects with `ApiError`** so the dialog
-     can show field errors; on success call `reload()`.
-     `reset()` — calls `api.reset()`, clears the query, resets sort to default, reloads.
+     can show field errors; on success call `reload()`. The promise resolves as soon as the save succeeds. It does
+     **not** wait for or depend on the reload: a failed reload goes into `error`, not into the dialog.
+     If `update` fails with `NOT_FOUND`, call `reload()` and then reject (the dialog closes and the list refreshes).
+     `reset()` — calls `api.reset()`, clears the query, resets sort to default, reloads. Rejects with `ApiError` on failure.
 9. Temporary page template: `<pre>{{ debug() | json }}</pre>` plus an `<input>` calling `store.setQuery`, to verify.
 
 ## Acceptance criteria
 - `npm run dev` starts both apps; the page shows customers immediately (initializer awaited the first load).
 - Stop the server and reload the page → the app still renders and the store has an `error` (no blank screen, no uncaught error in console).
+  That error is `{ code: 'UNKNOWN', message: "Can't reach the server. Please try again." }`. Note in `DECISIONS.md`
+  which HTTP status the proxy actually returned (DevTools → Network).
 - In DevTools → Network, typing "annabel" quickly produces **one** request (debounce).
 - Typing "ann", then quickly "anna" with `API_DELAY_MS=1500` → the first request shows as **cancelled** (switchMap).
 - Typing "ann", then "ann " → no new request (trim + distinctUntilChanged).

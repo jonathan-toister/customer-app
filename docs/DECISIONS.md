@@ -20,6 +20,12 @@ Phase 7 condenses this into the README.
 - **Dev proxy instead of CORS** — the client calls `/api`, the Angular dev server forwards to `:3000`.
 - **`Customer` type is duplicated** in client and server rather than shared via a workspace package — not worth the setup at this size (listed as a limitation).
 - **Reset endpoint** is a demo convenience, guarded in the UI by a confirmation dialog.
+- **Client error handling is specified in `ERROR-HANDLING.md`** (every error case → what the user sees → which layer handles it), agreed before building the client. Key choices:
+  - **Show the server's text.** `fields` messages and `message` are shown as they are. The client's own text, under the code `UNKNOWN`, is only for responses that aren't our error shape (server down, proxy error). The rules and their wording live in one place, the server.
+  - **Map by body shape, not status code.** Behind the dev proxy, a stopped server usually comes back as a non-JSON `5xx`, not status 0.
+  - **404 when saving an edit** (the customer was removed, e.g. by a reset in another tab) closes the dialog, shows "This customer no longer exists" and reloads. Keeping the dialog open would be a dead end.
+  - **A save resolves once the save succeeds**, even if the list refresh after it fails. The refresh failure appears as the list's error banner, not as a dialog error. The data *was* saved.
+  - **Client validation deliberately isn't a perfect copy of the server's** (a whitespace-only name, `a@b`). The server is the source of truth, and those cases show its field errors reaching the right control.
 - **Seed data is fully deterministic:** fixed name arrays, a fixed base date for `createdAt`, and stable UUID-shaped ids (`00000000-0000-4000-8000-000000000001`…). Every restart and reset gives identical data and ids, which keeps demos and manual checks repeatable. Customers created at runtime get `crypto.randomUUID()`.
 - **`reset()` uses `structuredClone` of the seed.** Without a copy, create/update would change the seed array itself and reset would restore the edited data.
 - **Server `list()` sorts the array returned by `filter()`**, never the store array. `Array.sort` sorts in place, so sorting the store directly would reorder stored data on every request.

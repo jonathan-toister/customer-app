@@ -8,7 +8,7 @@ Every situation has a deliberate screen; the app is comfortable at phone and des
    - `LoadingState` — centred spinner + optional label.
    - `ErrorState` — icon, `message` input, "Try again" button → `retry` output.
    - `EmptyState` — icon, `title`, `message`, optional `actionLabel` → `action` output.
-2. **Page template — exactly these cases, in this order:**
+2. **Page template — exactly these cases, in this order** (the error rows are cases 9–10 in `docs/ERROR-HANDLING.md`):
    | Condition | Shows |
    |---|---|
    | `initialLoad()` | `LoadingState` "Loading customers…" |
@@ -25,7 +25,9 @@ Every situation has a deliberate screen; the app is comfortable at phone and des
 5. Show a result count somewhere subtle (e.g. under the toolbar: "12 customers").
 
 ## Acceptance criteria
-- Stop the server, refresh → `ErrorState`; start the server, click "Try again" → list loads.
+- Stop the server, refresh → `ErrorState`; start the server, click "Try again" → list loads. *(ERROR-HANDLING case 9)*
+- With results on screen and `API_FAIL_RATE=0.5`, a failed search keeps the old results and shows the dismissible banner;
+  retry and further typing still work. *(case 10)*
 - Search for "zzzz" → no-results state with working "Clear search".
 - Reset is the way to demo; to see the true empty state, temporarily make the seed empty (or describe it in README).
 - No horizontal scroll at 375px. Keyboard-only: can search, sort, switch views, open/submit/cancel the dialog.

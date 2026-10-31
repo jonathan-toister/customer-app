@@ -9,7 +9,7 @@ interview. Readability and explainability beat cleverness everywhere.
 ## How to work in this repo
 
 1. Work **one phase at a time**. Phases live in `docs/phases/`. `docs/PLAN.md` has the order and checklist.
-2. Before starting a phase, read: this file, `docs/PLAN.md`, `docs/API.md`, and the phase file.
+2. Before starting a phase, read: this file, `docs/PLAN.md`, `docs/API.md`, `docs/ERROR-HANDLING.md`, and the phase file.
 3. At the end of a phase:
    - make sure every acceptance criterion in the phase file is met (run the app / tests, don't assume),
    - tick the phase in `docs/PLAN.md`,
@@ -40,7 +40,7 @@ npm run test          # client tests (and server tests if present)
 
 ```
 CLAUDE.md, README.md, package.json
-docs/       PLAN.md, API.md, DECISIONS.md, phases/
+docs/       PLAN.md, API.md, ERROR-HANDLING.md, DECISIONS.md, phases/
 server/src/ index.ts, customers.routes.ts, customers.store.ts, validation.ts, errors.ts, seed.ts
 client/src/app/
   app.config.ts, app.routes.ts, app.component.ts

@@ -24,7 +24,7 @@ backend. Prioritise working behaviour over polish. Stretch items are marked and 
 | Search and sort | Phase 1 (server-side), Phase 2 (store pipeline), Phase 3 (toolbar) |
 | Add and edit | Phase 4 — form dialog |
 | Data available when the app starts | Phase 2 — `provideAppInitializer` → `store.load()` |
-| No customers / something goes wrong | Phase 5 — loading, error+retry, empty, no-results; Phase 4 — save errors |
+| No customers / something goes wrong | `ERROR-HANDLING.md` (every error case → behaviour → phase); Phase 5 — loading, error+retry, empty, no-results; Phase 4 — save errors |
 | Usable on desktop and small screens | Phase 3 (cards forced on mobile), Phase 5 (pass) |
 | "Search should feel responsive and not overload the API" | Phase 2 — debounce, distinctUntilChanged, switchMap; Phase 3 — keep results visible while searching |
 | Reset customers (own addition) | Phase 1 endpoint, Phase 4 UI with confirmation |
