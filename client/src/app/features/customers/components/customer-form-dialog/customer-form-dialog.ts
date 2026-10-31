@@ -111,8 +111,9 @@ export class CustomerFormDialog {
     this.setSaving(false);
 
     // 3. Put each field message on its control. It clears by itself once the user edits that field.
+    const fieldErrors = Object.entries(error.fields ?? {});
     let unmatched = false;
-    for (const [field, message] of Object.entries(error.fields ?? {})) {
+    for (const [field, message] of fieldErrors) {
       const control = this.form.get(field);
       if (control) {
         control.setErrors({ server: message });
@@ -123,7 +124,7 @@ export class CustomerFormDialog {
     }
 
     // 4. Anything that couldn't go under a field goes in the general error area.
-    if (!error.fields || unmatched) {
+    if (fieldErrors.length === 0 || unmatched) {
       this.generalError.set(error.message);
     }
   }

@@ -11,7 +11,8 @@
       [value]="query()"
       (input)="queryChange.emit(search.value)"
     />
-    @if (query() !== '') {
+    <!-- Spaces alone aren't a search (the store trims them), so they don't get a clear button. -->
+    @if (query().trim() !== '') {
       <button matIconButton matSuffix type="button" aria-label="Clear search" (click)="clear.emit()">
         <mat-icon>close</mat-icon>
       </button>

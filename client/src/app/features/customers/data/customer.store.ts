@@ -67,6 +67,8 @@ export class CustomerStore {
    * "zzz" and "xzz" won't. Forgotten on reload and reset, because the data may have changed.
    */
   private emptyResultTerm: string | null = null;
+  /** True when the last list request failed, so typing the same text again retries it. */
+  private lastRequestFailed = false;
   private lastRequest: CustomerListParams = {
     q: '',
     sort: DEFAULT_SORT,
@@ -83,7 +85,8 @@ export class CustomerStore {
         debounceTime(SEARCH_DEBOUNCE_MS),
         // Skip when the term equals what was last requested. This works like distinctUntilChanged,
         // but compares against the last *request*, which clear, reset and sort changes also update.
-        filter((term) => term !== this.lastRequest.q),
+        // A failed request doesn't count: typing the same text again retries it.
+        filter((term) => term !== this.lastRequest.q || this.lastRequestFailed),
         // Skip a search that can't have results. The no-results state already shows the new text,
         // because it reads `query`, so there's nothing to update.
         filter((term) => !this.cannotMatch(term)),
@@ -110,6 +113,7 @@ export class CustomerStore {
               this.state.page.set(page);
               this.state.hasLoaded.set(true);
               this.state.loading.set(false);
+              this.lastRequestFailed = false;
               this.settled$.next();
             }),
             // Inside switchMap, so a failed request ends only that request, not the whole pipeline.
@@ -117,6 +121,7 @@ export class CustomerStore {
             catchError((error: ApiError) => {
               this.state.error.set(error);
               this.state.loading.set(false);
+              this.lastRequestFailed = true;
               this.settled$.next();
               return EMPTY;
             }),
