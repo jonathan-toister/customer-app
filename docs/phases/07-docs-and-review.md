@@ -4,6 +4,11 @@
 A submission a reviewer can run in two minutes and understand in five.
 
 ## README.md sections (required by the assignment)
+*As built:* the README has existed since Phase 2 and every phase keeps it current (see "Keeping docs in sync" in CLAUDE.md).
+It already covers overview, status, prerequisites, getting started, scripts, data and API, structure and docs.
+Phase 7 **adds** screenshots (1), architecture and technical choices (3), the AI usage note (4), known limitations (5)
+and "with more time" (6). It also removes the **Status** line and re-checks the existing sections against a fresh clone.
+
 1. **Overview** — one paragraph + a screenshot or two (desktop table, mobile cards).
 2. **Setup & run** — Node version, `npm run install:all`, `npm run dev`, URLs, how to run tests.
    **Data source:** how the Express server works, the in-memory seed, `API_DELAY_MS` / `API_FAIL_RATE`,

@@ -14,6 +14,7 @@ interview. Readability and explainability beat cleverness everywhere.
    - make sure every acceptance criterion in the phase file is met (run the app / tests, don't assume),
    - tick the phase in `docs/PLAN.md`,
    - add any non-obvious choice to `docs/DECISIONS.md`,
+   - run the **docs check** (see "Keeping docs in sync" below). In the summary, list which docs you updated, or say "docs: none needed",
    - give a short summary of what changed and **stop**. Wait for the developer to review before the next phase.
 4. Commit at the end of each phase with the message suggested in the phase file.
 5. If something in the plan is wrong or unclear, say so and propose a fix — don't silently deviate.
@@ -28,15 +29,33 @@ interview. Readability and explainability beat cleverness everywhere.
 - **Root:** plain `package.json` with scripts only (no workspaces). `concurrently` runs both apps.
 - Client talks to the server via the Angular dev-server **proxy** (`/api` → `http://localhost:3000`), so no CORS setup.
 
-## Commands (target state)
+## Commands
 
 ```bash
+nvm use               # Node 24 from .nvmrc — the shell may default to an older Node
 npm run install:all   # installs root, server and client deps
 npm run dev           # server on :3000 + client on :4200
 npm run test          # client tests, run once (not watch mode); add server tests here if they're written
 ```
 
-## Folder structure (target state)
+## Keeping docs in sync
+
+Docs are part of the change, not a Phase 7 chore. Whenever a change touches something below, update the listed
+docs **in the same change**:
+
+| If you change… | Update |
+|---|---|
+| A command, script, port, env var or prerequisite (e.g. Node version) | `README.md` (Getting started / Scripts / Dev knobs), "Commands" above |
+| Files or folders (add, rename, remove) | "Folder structure" below, README "Project structure" |
+| An API endpoint, field, status or error code | `docs/API.md` **first**, then `server/requests.http`; `docs/ERROR-HANDLING.md` if client behaviour changes |
+| Client error behaviour | `docs/ERROR-HANDLING.md` |
+| Code that differs from a phase file | An "*As built:*" note in that phase file (keep the original text) + an entry in `docs/DECISIONS.md` |
+| A non-obvious choice or a new dependency | `docs/DECISIONS.md` (the dependency table for packages) |
+| A phase completed | Tick `docs/PLAN.md` + the README **Status** line |
+| Files a CLI or schematic generated (`ng new`, `ng add`, `ng generate`) | Review them. Delete or adapt any boilerplate docs. Never leave generic instructions (there is one README, at the root) |
+| The developer rejects or changes a suggestion | The AI log in `docs/DECISIONS.md` |
+
+## Folder structure (target — folders appear as the phases add them; README "Project structure" shows what exists today)
 
 ```
 CLAUDE.md, README.md, package.json

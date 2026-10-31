@@ -41,6 +41,7 @@ Phase 7 condenses this into the README.
 - **Malformed JSON body → `400 BAD_REQUEST`, not `500 INTERNAL`.** The phase file's error handler would have reported a client mistake as a server error. Added to `API.md`.
 - **`PUT` checks 404 before validating the body**, so the most basic problem (wrong id) is reported first.
 - **TypeScript 7 (native compiler) on the server**, because that's what `npm install typescript` now installs. `tsx` runs the code, and `tsc --noEmit` (`npm --prefix server run typecheck`) only type-checks.
+- **One README, at the root, written early and kept current**, rather than waiting until the end (Phase 7) or keeping per-package READMEs. The CLI-generated `client/README.md` was deleted because its instructions (`ng serve`, `ng e2e`) were wrong for this repo. CLAUDE.md's "Keeping docs in sync" table maps each kind of change to the docs it affects.
 - **Root `npm run test` passes `--watch=false`.** `ng test` (Vitest) stays in watch mode in a terminal, so the command would never finish.
 - **Node version pinned:** `.nvmrc` (`24`, current Active LTS) and `"engines": { "node": ">=22" }` in the root `package.json`. Node 20 is end-of-life and current Angular needs a newer runtime; this tells a reviewer which Node to use before they hit a confusing install error.
 

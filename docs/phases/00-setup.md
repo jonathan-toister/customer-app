@@ -12,6 +12,7 @@ An empty but runnable repo skeleton with the planning docs committed.
    - `test` → client tests (append server tests later if they exist)
    These scripts reference folders created in phases 1–2; that's fine.
 4. Placeholder `README.md` with just the title and "WIP — see docs/PLAN.md".
+   *As built:* replaced by a real README after Phase 2, and kept current from then on (see DECISIONS.md).
 
 ## Acceptance criteria
 - `git status` is clean after the commit.
