@@ -1,0 +1,79 @@
+<div class="toolbar">
+  <mat-form-field class="search" appearance="outline" subscriptSizing="dynamic">
+    <mat-label>Search</mat-label>
+    <mat-icon matPrefix>search</mat-icon>
+    <input
+      #search
+      matInput
+      type="search"
+      aria-label="Search customers"
+      placeholder="Name or email"
+      [value]="query()"
+      (input)="queryChange.emit(search.value)"
+    />
+    @if (query() !== '') {
+      <button matIconButton matSuffix type="button" aria-label="Clear search" (click)="clear.emit()">
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+  </mat-form-field>
+
+  <div class="sort">
+    <mat-form-field class="sort-field" appearance="outline" subscriptSizing="dynamic">
+      <mat-label>Sort by</mat-label>
+      <mat-select [value]="sort().field" (selectionChange)="onSortFieldChange($event.value)">
+        @for (field of sortFields; track field.value) {
+          <mat-option [value]="field.value">{{ field.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <button
+      matIconButton
+      type="button"
+      [attr.aria-label]="orderLabel()"
+      [matTooltip]="orderLabel()"
+      (click)="toggleOrder()"
+    >
+      <mat-icon>{{ sort().order === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+    </button>
+  </div>
+
+  @if (showViewSwitch()) {
+    <mat-button-toggle-group
+      aria-label="View"
+      hideSingleSelectionIndicator
+      [value]="view()"
+      (change)="viewChange.emit($event.value)"
+    >
+      <mat-button-toggle value="table" aria-label="Table view" matTooltip="Table view">
+        <mat-icon>table_rows</mat-icon>
+      </mat-button-toggle>
+      <mat-button-toggle value="cards" aria-label="Card view" matTooltip="Card view">
+        <mat-icon>grid_view</mat-icon>
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+  }
+
+  <div class="actions">
+    <button matButton="filled" type="button" (click)="add.emit()">
+      <mat-icon>add</mat-icon>
+      Add customer
+    </button>
+    <button matIconButton type="button" aria-label="More actions" [matMenuTriggerFor]="moreMenu">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #moreMenu="matMenu">
+      <button mat-menu-item type="button" (click)="reset.emit()">
+        <mat-icon>restart_alt</mat-icon>
+        <span>Reset demo data</span>
+      </button>
+    </mat-menu>
+  </div>
+</div>
+
+<!-- The slot is always there, so the list doesn't jump when the bar appears. -->
+<div class="progress-slot">
+  @if (busy()) {
+    <mat-progress-bar mode="indeterminate" aria-label="Searching" />
+  }
+</div>

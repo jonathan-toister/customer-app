@@ -1,0 +1,43 @@
+:host {
+  display: block;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.search {
+  flex: 1 1 260px;
+}
+
+.sort {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sort-field {
+  width: 150px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.progress-slot {
+  height: 4px;
+  margin-top: 8px;
+}
+
+// On a phone the search field gets its own row.
+@media (max-width: 599.98px) {
+  .search {
+    flex-basis: 100%;
+  }
+}

@@ -1,0 +1,25 @@
+<div class="grid">
+  @for (customer of customers(); track customer.id) {
+    <mat-card appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>{{ customer.name }}</mat-card-title>
+        <button
+          matIconButton
+          type="button"
+          class="edit"
+          [attr.aria-label]="'Edit ' + customer.name"
+          (click)="edit.emit(customer)"
+        >
+          <mat-icon>edit</mat-icon>
+        </button>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="email">{{ customer.email }}</p>
+        <div class="meta">
+          <span class="status status--{{ customer.status }}">{{ customer.status }}</span>
+          <span class="created">Created {{ customer.createdAt | date: 'mediumDate' }}</span>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

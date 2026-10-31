@@ -1,0 +1,38 @@
+<app-customer-toolbar
+  [query]="store.query()"
+  [sort]="store.sort()"
+  [view]="activeView()"
+  [showViewSwitch]="!isMobile()"
+  [busy]="busy()"
+  (queryChange)="store.setQuery($event)"
+  (clear)="store.clearQuery()"
+  (sortChange)="store.setSort($event)"
+  (viewChange)="onViewChange($event)"
+/>
+
+<!-- Temporary plain-text states; phase 5 replaces them with the shared state components. -->
+@if (store.initialLoad()) {
+  <p class="state">Loading customers…</p>
+} @else if (store.error() && store.isEmpty()) {
+  <div class="state">
+    <p>{{ store.error()?.message }}</p>
+    <button matButton="outlined" type="button" (click)="store.reload()">Try again</button>
+  </div>
+} @else if (store.isEmpty()) {
+  <p class="state">
+    @if (store.hasQuery()) {
+      No customers match “{{ store.query().trim() }}”
+    } @else {
+      No customers yet
+    }
+  </p>
+} @else {
+  @switch (activeView()) {
+    @case ('table') {
+      <app-customer-table [customers]="store.customers()" [sort]="store.sort()" (sortChange)="store.setSort($event)" />
+    }
+    @case ('cards') {
+      <app-customer-cards [customers]="store.customers()" />
+    }
+  }
+}

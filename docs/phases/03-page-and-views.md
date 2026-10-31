@@ -32,6 +32,17 @@ The real list UI: a toolbar with search, sort and view switch, and two interchan
    - Full-page loading only when `store.initialLoad()`; otherwise keep results visible and pass `busy` to the toolbar.
 6. Remove the temporary debug `<pre>` from phase 2.
 
+*As built:*
+- **Mobile is `Breakpoints.XSmall` (width under 600px), not `Breakpoints.Handset`.** Handset also depends on orientation
+  (a landscape window up to 959px wide counts as a phone), which is harder to predict and to test in DevTools.
+- **The toolbar has one extra output, `clear`**, for the × button. The page calls `store.clearQuery()`, which searches
+  at once. `queryChange('')` would wait for the 300ms debounce like normal typing.
+- **The whole table row is clickable to edit**, as well as the edit icon button. The button stops the click from
+  bubbling up to the row, so one click doesn't emit `edit` twice. Keyboard users use the button.
+- `CustomerView` (`'table' | 'cards'`) is exported from `customer-toolbar.ts`, because the toolbar owns the view switch.
+  It's a UI type, so it isn't in `customer.model.ts`.
+- `MAT_ICON_DEFAULT_OPTIONS` in `app.config.ts` makes `<mat-icon>` use the Material Symbols font that `index.html` loads.
+
 ## Stretch
 - `CustomerCompactList` as a third view option.
 

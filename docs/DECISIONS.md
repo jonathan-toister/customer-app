@@ -44,6 +44,15 @@ Phase 7 condenses this into the README.
 - **One README, at the root, written early and kept current**, rather than waiting until the end (Phase 7) or keeping per-package READMEs. The CLI-generated `client/README.md` was deleted because its instructions (`ng serve`, `ng e2e`) were wrong for this repo. CLAUDE.md's "Keeping docs in sync" table maps each kind of change to the docs it affects.
 - **Root `npm run test` passes `--watch=false`.** `ng test` (Vitest) stays in watch mode in a terminal, so the command would never finish.
 - **Node version pinned:** `.nvmrc` (`24`, current Active LTS) and `"engines": { "node": ">=22" }` in the root `package.json`. Node 20 is end-of-life and current Angular needs a newer runtime; this tells a reviewer which Node to use before they hit a confusing install error.
+- **Mobile = under 600px wide (`Breakpoints.XSmall`)**, instead of `Breakpoints.Handset`, which also depends on orientation. Width alone is predictable and easy to test in DevTools. *Developer's choice when asked.*
+- **`activeView` is a `computed`** (`isMobile ? 'cards' : selectedView`), not a value set in a subscription or an effect. It can never get out of sync, and the user's desktop choice is kept, so it comes back when the window widens.
+- **The view choice is saved to `localStorage` in the change handler, not in an effect.** There's only one place it changes, so an effect would only add indirection. Reads and writes are wrapped in try/catch (storage can be blocked), and an unknown saved value falls back to `table`.
+- **Toolbar has a separate `clear` output** for the × button. It calls `store.clearQuery()`, which searches at once. Reusing `queryChange('')` would wait for the debounce. *Developer's choice when asked.*
+- **Table uses `matSortDisableClear`.** Material's sort header normally has a third "unsorted" click; the API always sorts, so the header only switches between asc and desc. The table is given the already-sorted array (no `MatTableDataSource`), so it never sorts locally.
+- **Status is a text badge**, a styled `<span>` with the status word, so colour isn't the only signal. Not `mat-chip`, which is meant for interactive chips. The badge styles are repeated in the table and cards SCSS (a few lines) so each view stands on its own.
+- **Whole table row clickable to edit**, plus the edit icon button for keyboard users. The button calls `stopPropagation()` so a click doesn't emit `edit` twice.
+- **`MAT_ICON_DEFAULT_OPTIONS` sets the icon font to Material Symbols.** `ng add` put the Material Symbols font in `index.html`, but `<mat-icon>` defaults to the older `material-icons` class, so icons would show as text.
+- **Component files:** separate `.html` / `.scss` per component (like `App`), and no generated `.spec.ts` stubs. Tests are written in Phase 6. *Developer's choice when asked.*
 
 ## Deliberately not added
 
@@ -62,4 +71,4 @@ NgRx, HTTP interceptors, global error handler service, shared types package, pag
 > Claude Code appends here whenever the developer changes or rejects a suggestion.
 > Format: **What was suggested → what was done instead → why.**
 
--
+- **Phase 3, clickable table rows.** Suggested: skip them and keep only the edit icon button (less code to explain). → Done instead: the whole row opens edit, and the button stays for keyboard users. → Why: _TODO: developer's reason_.

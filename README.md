@@ -4,8 +4,8 @@ A small app for managing customers: list, search, sort, add, edit, and reset the
 The client is **Angular 22 with Angular Material**. It talks to a small **Express 5 + TypeScript** API that keeps
 customers in memory. Built as a home assignment for an Angular Front-End Developer role.
 
-**Status:** Phases 0–2 of 7 are done: the API and the client's data layer (store, search pipeline, startup load).
-The real UI arrives in Phase 3. Until then, the page shows a search box and a debug view of the store's state.
+**Status:** Phases 0–3 of 7 are done: the API, the client's data layer, and the customers page (search, sort,
+table and card views). "Add customer", edit and "Reset demo data" are visible but not wired up yet (Phase 4).
 Progress is tracked in [docs/PLAN.md](docs/PLAN.md).
 
 ## Prerequisites
@@ -84,7 +84,8 @@ API_DELAY_MS=1500 npm run dev     # slow responses, to see loading states and ca
         ├── app.ts, app.config.ts, app.routes.ts
         └── features/customers/
             ├── data/       customer.model.ts, customer-api.service.ts, customer.store.ts
-            └── customers-page/
+            ├── customers-page/   the smart page: connects the store to the components below
+            └── components/       customer-toolbar/, customer-table/, customer-cards/ (inputs in, outputs out)
 ```
 
 ## Documentation

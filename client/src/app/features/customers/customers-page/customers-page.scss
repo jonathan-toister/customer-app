@@ -1,0 +1,16 @@
+:host {
+  display: block;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+app-customer-toolbar {
+  margin-bottom: 8px;
+}
+
+.state {
+  margin: 48px 0;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+}
