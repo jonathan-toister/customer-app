@@ -32,5 +32,23 @@ Every situation has a deliberate screen; the app is comfortable at phone and des
 - Reset is the way to demo; to see the true empty state, temporarily make the seed empty (or describe it in README).
 - No horizontal scroll at 375px. Keyboard-only: can search, sort, switch views, open/submit/cancel the dialog.
 
+*As built:*
+- **Dismissing the banner calls `store.dismissError()`**, a new one-line store method. The store stays the only
+  owner of `error`, and the next failure shows the banner again by itself.
+- **`initialLoad` changed** from `loading && isEmpty` to `loading && !hasLoaded` (a flag set on the first
+  successful list response). The old rule flashed the full-page spinner while refining a search with no results.
+- **The true empty state uses a server knob, `SEED=empty npm run dev`**, instead of editing the seed by hand.
+  Reset keeps the list empty in that mode.
+- **The result count is always in the DOM** (an `aria-live` region inserted later isn't announced). It's visually
+  hidden when the list is empty, because the empty state already says so, and blank during the first load and
+  the full-page error.
+- **The error banner is inline in the page template**, not a fourth shared component. It's used once.
+- **`ErrorState` / `EmptyState` take `heading`, not `title`**: an input named `title` also leaves a native `title`
+  attribute on the host, which shows a browser tooltip over the whole state.
+- **The startup spinner lives in `index.html`**, not in `LoadingState`. The app initializer waits for the first list, so the page isn't drawn during the first load. `LoadingState` shows only on "Try again" after a failed first load.
+- **Visible focus:** `mat.strong-focus-indicators()` in `styles.scss`. Material's default focus is only a faint tint.
+- **Responsive check** was done in 375px and 768px iframes (Chrome won't shrink the window that far): no horizontal
+  scroll, every touch target ≥ 48px, and the dialog is 95vw on a phone.
+
 ## Commit
 `feat(client): loading, error, empty and no-results states; responsive and a11y pass`

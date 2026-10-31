@@ -60,6 +60,14 @@ Phase 7 condenses this into the README.
 - **The page picks "Customer added" or "Customer updated"** from whether it passed a customer to the dialog, so the dialog's result stays `{ kind: 'saved'; customer }` as specified.
 - **`ConfirmDialog` is generic** (`title`, `message`, `confirmLabel`) and closes with `true` / `false`. Backdrop or Escape gives `undefined`, so the caller checks `=== true`. Cancel comes first, so it gets the initial focus and Enter alone never confirms a reset.
 - **Reset shows the progress bar from the moment it's confirmed.** The store sets `loading` before the reset request (and clears it if that fails), rather than only during the reload after it. Otherwise there's ~400ms with no feedback. *Developer's choice when asked.*
+- **`initialLoad` means "loading before any list has arrived"** (`loading && !hasLoaded`), not "loading and empty". The old rule swapped the "No customers match" state for the full-page spinner on every keystroke while refining a search with no results. Now that case keeps the empty state and shows the thin progress bar. *Developer's choice when asked.*
+- **The error banner is dismissed through `store.dismissError()`**, not a page-local flag. The store stays the only owner of `error`, so a new failure shows the banner again without extra bookkeeping. *Developer's choice when asked.*
+- **`SEED=empty` server knob** to show the true "No customers yet" state, live, without editing code. Reset keeps it empty. *Developer's choice when asked.*
+- **Strong focus indicators** (`mat.strong-focus-indicators()`): Material's default keyboard focus is a faint tint that's easy to miss. *Developer's choice when asked.*
+- **The result count is a live region that's always in the page.** Screen readers don't announce a live region that's inserted with its text already set. It's visually hidden when the list is empty (the empty state already says it) and blank when there's no list to count.
+- **The error banner is inline in the page template**, not a shared component: it's used in one place.
+- **Startup spinner in `index.html`.** Because the app initializer waits for the first list, Angular draws nothing until it arrives, so the page's `LoadingState` can't show then (it only appears on "Try again" after a failed first load). Instead, `<app-root>` contains a plain-CSS spinner and "Loading customers…", which Angular replaces when it renders. Plain CSS because Angular isn't running yet. *Developer's choice when asked (see the AI log).*
+- **State components use a `heading` input, not `title`.** A component input called `title` also leaves the native `title` attribute on the host element, so the browser shows a tooltip over the whole state.
 
 ## Deliberately not added
 
@@ -79,3 +87,4 @@ NgRx, HTTP interceptors, global error handler service, shared types package, pag
 > Format: **What was suggested → what was done instead → why.**
 
 - **Phase 3, clickable table rows.** Suggested: skip them and keep only the edit icon button (less code to explain). → The developer first chose clickable rows, intending to let users edit in the table without a popup. Once built, a row click only opened the same popup as the button, and real inline editing would mean a second edit path with its own error handling (the popup is still needed for Add and the mobile cards). → Removed again; only the edit button opens the dialog.
+- **Phase 5, no spinner at startup.** The app initializer waits for the first list, so the page (and its spinner) isn't drawn until then. Suggested: stop waiting, so the page draws at once and shows its own `LoadingState`. → The developer kept the wait and asked for an animated placeholder in `index.html` instead (a CSS spinner + "Loading customers…" inside `<app-root>`). → Customers are still on screen at first render, as decided in Phase 2, and there's no blank page while they load.
